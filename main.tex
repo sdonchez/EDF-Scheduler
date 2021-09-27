@@ -1,0 +1,65 @@
+\documentclass[11pt,oneside]{book}   
+\usepackage{fancyhdr}           % Book class in 11 points
+\usepackage[top=1.25in]{geometry}
+\usepackage{graphicx}
+\usepackage{adjustbox}
+%\usepackage{emptypage}
+\usepackage{subcaption}
+\usepackage{rotating}
+\usepackage{appendix}
+\usepackage[hidelinks]{hyperref}
+\usepackage{import}
+\parindent0pt  \parskip10pt             % make block paragraphs
+\raggedright                            % do not right justify
+
+                        %   Use current date. 
+
+% Note that book class by default is formatted to be printed back-to-back.
+%\usepackage[defernumbers=true, backend=biber, style=ieee, dashed=false]{biblatex}
+\usepackage{filecontents}
+%\addbibresource{bb.bib}
+
+
+
+
+\begin{document}     
+% \renewcommand{\bibname}{References}                   % End of preamble, start of text.
+\frontmatter                            % only in book class (roman page #s)
+\import{ECETemplate/}{titlepage}
+\import{ECETemplate/}{copyright}
+% \input{submissionFormIS}
+% \input{../../content/acknowledgment}
+% \input{../../content/abstract}                             % Print title page.
+\tableofcontents                        % Print table of contents
+\listoffigures
+\listoftables
+
+\mainmatter                             % only in book class (arabic page #s)
+
+ \pagestyle{fancy}
+ \pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[RE,LO]{\leftmark}
+
+\import{content/}{plans}
+
+                  % Print a "part" heading
+                 %\input{Chapters/Chap1}
+%% Uncomment the following lines using the \part command
+%% to add part sections
+%\part{Example Part}
+
+%\phantomsection 
+% \addcontentsline{toc}{chapter}{References} 
+
+%\begin{refsection}[bb.bib]
+%\nocite{*}
+%\end{refsection}
+% \bibliographystyle{IEEEbib}
+% \bibliography{LaTeX_Assets/SDonchezResearch}
+
+%appendices
+% \input{../../content/chapter-appendix.tex}
+\end{document}                          % The required last line
+
