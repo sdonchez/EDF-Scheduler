@@ -7,5 +7,9 @@
         "VFPGA",
         "Villanova",
         "Virtex"
-    ]
+    ],
+    "latex-workshop.latex.outDir": "./out",
+    "latex-workshop.synctex.afterBuild.enabled": true,
+    "latex-workshop.view.pdf.viewer": "tab",
+    "latex-workshop.latex.autoBuild.run": "onSave"
 }
