@@ -1,0 +1,84 @@
+% !TeX root = ../SDonchezResearchIReport.tex
+\chapter{AES Engine Scheduling}\label{chap:EDFAlgorithm}
+Since the AES engine is decrypting a bitstream, as opposed to a simple key (as is the case in the KAC engine), it will necessarily be occupied for a considerably longer period of time than the KAC engine for each reconfiguration cycle. Furthermore, since the trend in cloud infrastructure is to implement large devices with many partitions rather than many smaller ones, it is likely that a single AES engine per PFPGA will be insufficient to accomodate the partial reconfiguration needs of said device's tenants.
+
+To this end, this architecture proposes the implementation of multiple discrete AES cores, each of which may be attached to a partition for the purposes of facilitating a decryption operation as part of the reconfiguration process. This necessitates the scheduling and allocation of these resources in a fashion that takes into account the real-world constraints of the CSP. To this end, this architecture proposes an Earliest Deadline First (EDF) scheduling algorithm, to be implemented on the Hard Processor System (HPS) of the heterogenous system. This algorithm, including its assumptions, constraints, and implementation, is outlined in the following sections.
+
+\section{Assumptions}\label{sec:EDFAssumptions}
+The following assumptions are made regarding the implementation of the AES core scheduling process for this architecture:
+\begin{itemize}
+    \item The time required to decrypt a given partial bitstream increases linearly with a corresponding increase in file size.
+    \item The time required to decrypt a given partial bitstream can be aproximated into a discrete number of "time units".
+    \item Deadlines for decryption are made available as tasks are received, and are driven by real world constraints (License Agreements, Pricing Tier, etc.).
+    \item The CSP will not allocate more decryption jobs to the PFPGA than can be scheduled within their given deadlines (meaning that the schedulability does not need to be verified).
+    \item The time required to switch from processing one bitstream to processing another is both non-trivial and constant.
+    \item The act of reading (ingesting) and writing (outputting) bitstream segments to/from the AES engine requires a known, constant time.
+    \item The time required for communication between the HPS and the AES core is assumed to be both constant and trivial.
+\end{itemize}
+
+\section{Design Constraints}\label{sec:EDFConstraints}
+The implementation outlined in subsequent sections will be subject to the following set of design constraints, imposed by the assumptions listed in the preceeding section as well as best practices:
+\begin{itemize}
+    \item In the event of a tie between two task for the next time unit, where one task is the task that was operated on in the previous time unit, the task which was previously being executed shall continue to be executed, in order to elimintate overhead associated with context switching between tasks.
+    \item As the IP core currently selected for performing the AES decryption operation is non-pipelined, and therefore not capable of transitioning seemlessly between decryption operations without first having its state machine reset, there shall be a small reset delay during context switches
+    \item The algorithm shall be implemented for an abstract number of AES cores N, with the assumption that N shall be some small number in the real-world implementation.
+    \item The HPS shall communicate with the AES cores via the AXI bus.
+    \item The bitstream shall reside in the domain of the PS for purposes of this algorithm, and shall be transferred via the AXI bus.
+    \item The atomic unit of the bitstream shall be considered 1 Kilobyte, as too small of an atomic unit will cause scheduling computations to take longer than the time unit itself.
+    \item Tasks are placed in a queue, Q, arranged by deadline in ascending order (such that the earliest deadline is at the start of the queue). 
+    \item The deadline associated with a processor is the deadline of the task it is currently executing, or $\infty$ if it is idle.
+\end{itemize}
+
+\section{Algorithm Implementation}\label{sec:AlgoImpl}
+The following algorithm implements the scheduling routine for the AES Cores, as governed by the constraints and assumptions outlined above:
+\begin{algorithm}
+    \caption{EDF Scheduling Algorithm for AES Decryption Cores}\label{alg:EDFAES}
+    \begin{algorithmic}
+
+        %define foreach since it isn't included
+        \algnewcommand\algorithmicforeach{\textbf{for each}}
+        \algdef{S}[FOR]{ForEach}[1]{\algorithmicforeach\ #1\ \algorithmicdo}
+        \State // Variables: 
+        \State // N - the set of cores to be utilized
+        \State // Q - the queue containing all tasks currently pending execution
+        \State // $T_{n_i}$ - the task assigned to a given core
+        \State // $D_t$ - the delay associated with a given task
+        \State // $D_{n_i}$ - the delay associated with the task currently executing on a core (for brevity)
+        \State // $D_{Q_i}$ - the delay associated with the task at a given position in the queue (for brevity)
+
+        \\
+
+        \Require $n(N) > 0$ \Comment{There are a nonzero number of cores}
+
+        \Function{SwapTaskToQueue}{$T$}
+            \ForEach {$Q_i \in Q$} 
+                \If{$D_T < D_{Q_I}$}
+                    \State Insert $T$ into $Q$ at index $Q_i$
+                    \State \Return pop($Q$)
+                \EndIf
+            \EndFor
+            \State Append $T$ to the end of $Q$ \Comment{If all currently queued tasks expire before $T$}
+        \EndFunction
+
+        \\
+
+        \While{true} \Comment{Each Time Unit}
+            \ForEach {$n_i \in N $}
+                \If{$Q \neq \emptyset$}
+                    \If{$D_{n_i} == \infty$}
+                        \State $T_{n_i} \gets T_{Q_0}$ \Comment{Pop $Q$}
+
+                    \\
+                    \State \Comment {\parbox[t]{.82\linewidth}{If the currently executing task has a later deadline than the first task in the queue and has the latest deadline of any currently executing task across all cores.}}
+                    \\
+
+                    \ElsIf{$(D_{n_i} > D_{Q_0})$ AND $D_{n_i} == max(D_N)$}  
+                        \State $T_{n_i} \gets $SwapTaskToQueue($T_{n_i}$)
+                    \Else
+                        \State $T_{n_i} \gets T_{n_i}$
+                    \EndIf
+                \EndIf
+            \EndFor
+        \EndWhile
+    \end{algorithmic}
+\end{algorithm}
