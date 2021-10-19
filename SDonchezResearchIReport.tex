@@ -21,11 +21,12 @@
 %\usepackage{filecontents}
 %\addbibresource{bb.bib}
 
-\begin{document}     
+\begin{document}
 \renewcommand{\bibname}{References}                   % End of preamble, start of text.
 \frontmatter                            % only in book class (roman page #s)
-\import{ECETemplate/}{titlepage}
-\import{ECETemplate/}{copyright}
+\input{ECETemplate/titlepage}
+\input{ECETemplate/copyright}
+
 % \input{submissionFormIS}
 % \input{../../content/acknowledgment}
 % \input{../../content/abstract}                             % Print title page.S
@@ -33,7 +34,6 @@
 \listoffigures
 \listoftables
 \listofalgorithms
-
 \mainmatter                             % only in book class (arabic page #s)
 
  \pagestyle{fancy}
@@ -42,9 +42,9 @@
 \fancyhead[LE,RO]{\thepage}
 \fancyhead[RE,LO]{\leftmark}
 
-\import{content/}{plans}
-\import{content/}{findings}
-\import{content/}{EDFAlgorithm}
+\input{content/plans} 
+\input{content/findings}
+\input{content/EDFAlgorithm}  
 
 %% Uncomment the following lines using the \part command
 %% to add part sections

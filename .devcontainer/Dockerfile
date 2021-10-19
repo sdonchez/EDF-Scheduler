@@ -5,7 +5,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # installing texlive and utils
 RUN apt-get update && \
-    apt-get -y install --no-install-recommends pandoc texlive texlive-latex-extra texlive-extra-utils texlive-bibtex-extra texlive-science biber latexmk make git procps locales curl && \
+    apt-get -y install --no-install-recommends texlive texlive-latex-extra texlive-extra-utils texlive-bibtex-extra texlive-science biber 
+
+#install smaller packages - for caching
+RUN apt-get -y install latexmk make git procps locales curl pandoc pandoc-citeproc xz-utils && \
+    curl -L https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.12.0c/pandoc-crossref-Linux.tar.xz --output ./pandoc-crossref-Linux.tar.xz && tar -xf  ./pandoc-crossref-Linux.tar.xz && rm ./pandoc-crossref-Linux.tar.xz && mv ./pandoc-crossref* /usr/bin &&\
     rm -rf /var/lib/apt/lists/*
 
 # generating locales

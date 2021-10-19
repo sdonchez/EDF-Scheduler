@@ -11,5 +11,167 @@
     "latex-workshop.latex.outDir": "./out",
     "latex-workshop.synctex.afterBuild.enabled": true,
     "latex-workshop.view.pdf.viewer": "tab",
-    "latex-workshop.latex.autoBuild.run": "onSave"
+    "latex-workshop.latex.autoBuild.run": "onFileChange",
+    "latex-workshop.latex.recipes": [
+
+        {
+            "name": "latexmk 🔃",
+            "tools": [
+                "latexmk",
+                "pandocx"
+            ]
+        },
+        {
+            "name": "latexmk (latexmkrc)",
+            "tools": [
+                "latexmk_rconly"
+            ]
+        },
+        {
+            "name": "latexmk (lualatex)",
+            "tools": [
+                "lualatexmk"
+            ]
+        },
+        {
+            "name": "pdflatex ➞ bibtex ➞ pdflatex × 2",
+            "tools": [
+                "pdflatex",
+                "bibtex",
+                "pdflatex",
+                "pdflatex"
+            ]
+        },
+        {
+            "name": "Compile Rnw files",
+            "tools": [
+                "rnw2tex",
+                "latexmk"
+            ]
+        },
+        {
+            "name": "Compile Jnw files",
+            "tools": [
+                "jnw2tex",
+                "latexmk"
+            ]
+        },
+        {
+            "name": "tectonic",
+            "tools": [
+                "tectonic"
+            ]
+        },
+        {
+            "name": "Generate DOCX",
+            "tools": [
+                "latex",
+                "biber",
+                "latex",
+                "latex",
+                "pandocx"
+            ]
+            }
+    ],
+    "latex-workshop.latex.tools": [
+        { // convert latex project to .docx
+            "name": "pandocx",
+            "command": "pandoc",
+            "args": [
+                "%DOCFILE%.tex",
+                "--bibliography=LaTexAssets\\SDonchezResearch.bib",
+                "-o%DOCFILE%.docx"
+            ]
+        },
+        {
+            "name": "latexmk",
+            "command": "latexmk",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-pdf",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "lualatexmk",
+            "command": "latexmk",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-lualatex",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "latexmk_rconly",
+            "command": "latexmk",
+            "args": [
+                "%DOC%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "pdflatex",
+            "command": "pdflatex",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "bibtex",
+            "command": "bibtex",
+            "args": [
+                "%DOCFILE%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "rnw2tex",
+            "command": "Rscript",
+            "args": [
+                "-e",
+                "knitr::opts_knit$set(concordance = TRUE); knitr::knit('%DOCFILE_EXT%')"
+            ],
+            "env": {}
+        },
+        {
+            "name": "jnw2tex",
+            "command": "julia",
+            "args": [
+                "-e",
+                "using Weave; weave(\"%DOC_EXT%\", doctype=\"tex\")"
+            ],
+            "env": {}
+        },
+        {
+            "name": "jnw2texmintex",
+            "command": "julia",
+            "args": [
+                "-e",
+                "using Weave; weave(\"%DOC_EXT%\", doctype=\"texminted\")"
+            ],
+            "env": {}
+        },
+        {
+            "name": "tectonic",
+            "command": "tectonic",
+            "args": [
+                "--synctex",
+                "--keep-logs",
+                "%DOC%.tex"
+            ],
+            "env": {}
+        }
+    ],
 }
