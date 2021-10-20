@@ -14,7 +14,7 @@ The following assumptions are made regarding the implementation of the AES core 
     \item The time required to switch from processing one bitstream to processing another is both non-trivial and constant.
     \item The act of reading (ingesting) and writing (outputting) bitstream segments to/from the AES engine requires a known, constant time.
     \item The time required for communication between the HPS and the AES core is assumed to be both constant and trivial.
-    \item Due to the nature of the environment in which the algorithm is being implemented, it is important to note that tasks are random and likely non-periodic in nature.
+    \item Due to the nature of the environment in which the algorithm is being implemented, it is important to note that tasks are random and likely aperiodic in nature.
 \end{itemize}
 
 \section{Design Constraints}\label{sec:EDFConstraints}
