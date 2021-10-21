@@ -6,6 +6,10 @@
 
 #include "Core.h"
 
+/**
+ * Assigns null to the currentTask, since there isn't one when the Core is 
+ * created.
+*/
 Core::Core(const unsigned int coreId) : coreId(coreId)
 {
 	this->currentTask = nullptr;
@@ -20,4 +24,13 @@ void Core::assignTask(Task* task)
 {
 	currentTask = task;
 } //assignTask
+
+void Core::executeForTimeUnit()
+{
+	currentTask->executeForTimeUnit();
+	if (!currentTask->unitsRemaining())
+	{
+		currentTask = nullptr;
+	}
+}
 

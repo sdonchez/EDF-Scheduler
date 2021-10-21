@@ -19,13 +19,17 @@ TimeUnit::~TimeUnit()
 void TimeUnit::start()
 {
 	startTime = system_clock::now();
-	nanoseconds duration{ 10 * numClocks };
+	nanoseconds duration{ NS_PER_TICK * numClocks };
 	endTime = startTime + duration;
 } //start
 
+/**
+ * Since everything behind the scenes uses nanoseconds, ticks is obtained by 
+ * dividing the nanosecond count by 10 (100 MHz clock)
+*/
 clock_t TimeUnit::ticksRemaining()
 {
-	return this->timeRemaining().count() / 10;
+	return this->timeRemaining().count() / NS_PER_TICK;
 } //ticksRemaining
 
 nanoseconds TimeUnit::timeRemaining()
@@ -45,6 +49,8 @@ unsigned int TimeUnit::unitDiff(const TimeUnit& unit1, const TimeUnit& unit2)
 {
 	return (unit1.unitNum - unit2.unitNum);
 } //unitDiff
+
+//Operator overloads to enable unitId comparison
 
 bool operator> (const TimeUnit& unit1, const TimeUnit& unit2)
 {
@@ -70,6 +76,16 @@ bool operator== (const TimeUnit& unit1, const TimeUnit& unit2)
 {
 	return (unit1.unitNum == unit2.unitNum);
 } //operator==
+
+bool operator== (const unsigned int unitNum, const TimeUnit& unit)
+{
+	return(unitNum == unit.unitNum);
+}
+
+bool operator== (const TimeUnit& unit, const unsigned int unitNum)
+{
+	return(unitNum == unit.unitNum);
+}
 
 bool operator!= (const TimeUnit& unit1, const TimeUnit& unit2)
 {

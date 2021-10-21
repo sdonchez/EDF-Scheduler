@@ -8,6 +8,7 @@
 #include "Task.h" //since a queue is full of tasks
 #include <deque> //for queue itself
 #include <algorithm> //for std::sort 
+#include "TimeUnit.h"
 
 /**
  * @brief Implements the queue of tasks that are not currently executing. 
@@ -35,7 +36,7 @@ public:
 	 * @brief wrapper for the Deque::pop_front() function. Pops the first
 	 * element from the queue.
 	*/
-	void pop();
+	Task* fetchAndPop();
 
 	/**
 	 * @brief inserts the new Task into the queue, sorted by deadline.
@@ -48,6 +49,12 @@ public:
 	 * @return 
 	*/
 	unsigned int length();	
+
+	bool isEmpty();
+
+	Task* swapTaskToQueue(Task* taskToQueue);
+
+	const TimeUnit* earliestDeadline();
 
 private:
 

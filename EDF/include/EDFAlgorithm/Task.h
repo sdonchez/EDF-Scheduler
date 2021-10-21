@@ -5,8 +5,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include "nlohmann\json.hpp" //For parsing tasks from stdin
 #include "TimeUnit.h" //Since tasks have time constraints
 #include <string> //for taskName
+
 class Task
 {
 public:
@@ -14,7 +16,7 @@ public:
 	/**
 	 * @brief The TimeUnit the task needs to be completed by.
 	*/
-	const TimeUnit deadline;
+	const TimeUnit* deadline;
 
 	/**
 	 * @brief The frequency with which the task is repeated, or 0 if it is
@@ -54,9 +56,11 @@ public:
 	 * @param period		 - The frequency with which the task is repeated, or
 	 * 0 if it is aperiodic. (measured in TimeUnits)
 	*/
-	Task(const TimeUnit deadline, const unsigned int unitsToExecute, 
+	Task(const TimeUnit* deadline, const unsigned int unitsToExecute, 
 		const unsigned int taskId, const std::string taskName = NULL, 
 		const unsigned int period = 0);
+
+	Task(const nlohmann::json task, const TimeUnit* deadline);
 
 	/**
 	 * @brief Destructor for the Task instance.
@@ -75,7 +79,7 @@ public:
 	 * @param CurrentUnit - The TimeUnit to compare against (typically now())
 	 * @return number of TimeUnits remaining
 	*/
-	unsigned int unitsToDeadline(TimeUnit CurrentUnit);
+	unsigned int unitsToDeadline(TimeUnit* CurrentUnit);
 
 	/**
 	 * @brief Calculates the number of TimeUnits remainig to execute.

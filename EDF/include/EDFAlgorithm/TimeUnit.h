@@ -7,6 +7,7 @@
 #pragma once
 #include <ctime> //for ticksRemaining
 #include <chrono> //for all other time related functionality
+#define NS_PER_TICK 10
 
 using namespace std::chrono; //for all other time related functionality
 

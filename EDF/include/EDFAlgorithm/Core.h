@@ -44,4 +44,6 @@ public:
 	 * @param task - The Task object to be assigned to the current Core
 	*/
 	void assignTask(Task* task);
+
+	void executeForTimeUnit();
 }; //Core
