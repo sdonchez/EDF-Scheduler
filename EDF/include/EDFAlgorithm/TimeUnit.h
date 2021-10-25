@@ -11,6 +11,10 @@
 
 using namespace std::chrono; //for all other time related functionality
 
+/**
+ * @brief Implements the atmoic unit of time that the EDF algorithm is
+ * scheduling a task for.
+*/
 class TimeUnit
 {
 public:

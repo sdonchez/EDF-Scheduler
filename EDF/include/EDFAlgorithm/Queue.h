@@ -48,7 +48,7 @@ public:
 	 * @brief returns the number of tasks in the queue.
 	 * @return 
 	*/
-	unsigned int length();	
+	size_t length();	
 
 	bool isEmpty();
 
@@ -66,7 +66,7 @@ private:
 	 * @return bool - True if Task 1 is due later, False if Task 1 is due 
 	 *				  earlier than task 2.
 	*/
-	static bool swapTest(const Task& task1, const Task& task2);
+	static bool swapTest(const Task* task1, const Task* task2);
 
 	/**
 	 * @brief Sorts the queue. Effectively sorts a new element into the queue,

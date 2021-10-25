@@ -288,3 +288,7 @@ TSWLatexianTemp*
 
 #ignore .zip files prepared for emailing this project
 *.zip
+
+#ignore documentation assets
+./*/doc/html/
+./*/doc/latex/

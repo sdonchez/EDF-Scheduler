@@ -7,8 +7,8 @@
 #include "Task.h"
 
 Task::Task(const TimeUnit* deadline, const unsigned int unitsToExecute, 
-	const unsigned int taskId, const std::string taskName = NULL, 
-	const unsigned int period = 0) :
+	const unsigned int taskId, const std::string taskName, 
+	const unsigned int period) :
 	deadline(deadline), unitsToExecute(unitsToExecute), taskName(taskName), 
 	taskId(taskId),	period(period)
 {

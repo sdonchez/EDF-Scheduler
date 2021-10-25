@@ -1,0 +1,44 @@
+{
+  "1": {
+    "deadline": 15,
+    "unitsToExecute": 5,
+    "taskId": 1,
+    "taskName": "Task 1",
+    "period": 20
+  },
+  "2": {
+    "deadline": 14,
+    "unitsToExecute": 5,
+    "taskId": 2,
+    "taskName": "Task 2",
+    "period": 18
+  },
+  "3": {
+    "deadline": 13,
+    "unitsToExecute": 5,
+    "taskId": 3,
+    "taskName": "Task 3",
+    "period": 0
+  },
+  "4": {
+    "deadline": 12,
+    "unitsToExecute": 5,
+    "taskId": 4,
+    "taskName": "Task 4",
+    "period": 10
+  },
+  "5": {
+    "deadline": 11,
+    "unitsToExecute": 5,
+    "taskId": 5,
+    "taskName": "Task 5",
+    "period": 5
+  },
+  "6": {
+    "deadline": 10,
+    "unitsToExecute": 5,
+    "taskId": 6,
+    "taskName": "Task 6",
+    "period": 0
+  }
+}

@@ -29,7 +29,7 @@ void TimeUnit::start()
 */
 clock_t TimeUnit::ticksRemaining()
 {
-	return this->timeRemaining().count() / NS_PER_TICK;
+	return (clock_t) this->timeRemaining().count() / NS_PER_TICK;
 } //ticksRemaining
 
 nanoseconds TimeUnit::timeRemaining()

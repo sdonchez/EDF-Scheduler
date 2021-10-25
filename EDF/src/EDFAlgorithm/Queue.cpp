@@ -32,14 +32,14 @@ void TaskQueue::insert(Task* task)
 	this->sort();
 } //insert
 
-unsigned int TaskQueue::length()
+size_t TaskQueue::length()
 {
 	return this->tasks.size();
 } //length
 
 bool TaskQueue::isEmpty()
 {
-	return (bool) this->length();
+	return !((bool) this->length());
 }
 
 Task* TaskQueue::swapTaskToQueue(Task* taskToQueue)
@@ -55,9 +55,9 @@ const TimeUnit* TaskQueue::earliestDeadline()
 	return this->tasks.front()->deadline;
 }
 
-bool TaskQueue::swapTest(const Task& task1, const Task& task2)
+bool TaskQueue::swapTest(const Task* task1, const Task* task2)
 {
-	return (task1.deadline > task2.deadline);
+	return (*task1->deadline > *task2->deadline);
 } //swapTest
 
 /**

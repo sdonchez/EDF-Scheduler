@@ -9,6 +9,9 @@
 #include "TimeUnit.h" //Since tasks have time constraints
 #include <string> //for taskName
 
+/**
+ * @brief Implements a decryption task that the EDF algorithm is scheduling.
+*/
 class Task
 {
 public:

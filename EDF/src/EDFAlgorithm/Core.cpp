@@ -22,15 +22,15 @@ Core::~Core()
 
 void Core::assignTask(Task* task)
 {
-	currentTask = task;
+	this->currentTask = task;
 } //assignTask
 
 void Core::executeForTimeUnit()
 {
-	currentTask->executeForTimeUnit();
-	if (!currentTask->unitsRemaining())
+	(*currentTask).executeForTimeUnit();
+	if (!this->currentTask->unitsRemaining())
 	{
-		currentTask = nullptr;
+		this->currentTask = nullptr;
 	}
 }
 
