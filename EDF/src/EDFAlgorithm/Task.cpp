@@ -33,16 +33,25 @@ Task::~Task()
 */
 bool Task::isPeriodic()
 {
+#ifdef DEBUG_TASKS
+	cout << "isPeriodic called for Task " << this->taskId << std::endl;
+#endif //DEBUG_TASKS
 	return (this->period > 0);
 } //isPeriodic
 
 unsigned int Task::unitsToDeadline(TimeUnit* currentUnit)
 {
+#ifdef DEBUG_TASKS
+	cout << "unitsToDeadline called for Task " << this->taskId << std::endl;
+#endif //DEBUG_TASKS
 	return TimeUnit::unitDiff(*this->deadline, *currentUnit);
 } //unitsToDeadline
 
 unsigned int Task::unitsRemaining()
 {
+#ifdef DEBUG_TASKS
+	cout << "unitsRemaining Called for Task " << this->taskId << std::endl;
+#endif //DEBUG_TASKS
 	return this->unitsToExecute - this->unitsExecuted;
 } //unitsRemaining
 
@@ -53,6 +62,9 @@ unsigned int Task::unitsRemaining()
 */ 
 void Task::executeForTimeUnit()
 {
+#ifdef DEBUG_TASKS
+	cout << "executeForTimeUnit Called for Task " << this->taskId << std::endl;
+#endif //DEBUG_TASKS
 	this->unitsExecuted++;
 } //executeForTimeUnit
 
@@ -62,4 +74,4 @@ void Task::executeForTimeUnit()
 	//TODO: determine implementation for SoC
 }
 
-#endif
+#endif //TARGET_MS_WINDOWS
