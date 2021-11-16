@@ -10,11 +10,23 @@
 #include <thread> //for concurrent operations
 #include <stdio.h> //for input ingestion
 #include <algorithm>
+#include <iostream>
 
 #ifdef TARGET_MS_WINDOWS
 #include <Windows.h>
 #include <WinUser.h>
 #include <iostream>
+#endif
+
+#ifdef TARGET_ZED
+#include "xparameters.h"
+#include "xscutimer.h"
+#include "xscugic.h"
+#include "xil_exception.h"
+#include "xil_printf.h"
+
+XScuTimer TimerInstance;	/* Cortex A9 Scu Private Timer Instance */
+XScuGic IntcInstance;		/* Interrupt Controller Instance */
 #endif
 
 #ifdef DEBUG_ALL
@@ -31,7 +43,7 @@
 #define CLOCKS_PER_UNIT 1000
 //TODO: Determine CLOCKS_PER_UNIT value
 
-#define UNITS_TO_SIM 100
+#define UNITS_TO_SIM 1000
 //TODO: Replace with arg parsing
 
 /**
