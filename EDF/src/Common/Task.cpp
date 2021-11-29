@@ -8,18 +8,20 @@
 
 Task::Task(const TimeUnit* deadline, const unsigned int unitsToExecute, 
 	const unsigned int taskId, const std::string taskName, 
-	const unsigned int period) :
+	const unsigned int period, int oUD[]) :
 	deadline(deadline), unitsToExecute(unitsToExecute), taskName(taskName), 
-	taskId(taskId),	period(period)
+	taskId(taskId),	period(period), oUD(oUD)
 {
-	//empty ctor
+	oUD[this->deadline->unitNum] += this->unitsToExecute;
 } //ctor
 
-Task::Task(const nlohmann::json task, const TimeUnit* deadline): 
+Task::Task(const nlohmann::json task, const TimeUnit* deadline, 
+	int oUD[]):
 	deadline(deadline), unitsToExecute(task["unitsToExecute"]), 
-	taskName(task["taskName"]),taskId(task["taskId"]), period(task["period"])
+	taskName(task["taskName"]),taskId(task["taskId"]), period(task["period"]),
+	oUD(oUD)
 {
-	//empty ctor
+	oUD[this->deadline->unitNum] += this->unitsToExecute;
 }
 
 Task::~Task()
@@ -66,6 +68,7 @@ void Task::executeForTimeUnit()
 	cout << "executeForTimeUnit Called for Task " << this->taskId << std::endl;
 #endif //DEBUG_TASKS
 	this->unitsExecuted++;
+	this->oUD[this->deadline->unitNum] -= 1;
 } //executeForTimeUnit
 
 #else

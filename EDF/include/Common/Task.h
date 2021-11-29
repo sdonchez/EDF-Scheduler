@@ -47,6 +47,8 @@ public:
 	*/
 	int unitsExecuted = 0;
 
+	int* oUD;
+
 	/**
 	 * @brief Constructor for the Task. Assigns values to all of the task
 	 *		  properties.
@@ -61,9 +63,10 @@ public:
 	*/
 	Task(const TimeUnit* deadline, const unsigned int unitsToExecute, 
 		const unsigned int taskId, const std::string taskName = NULL, 
-		const unsigned int period = 0);
+		const unsigned int period = 0, int oUD[]);
 
-	Task(const nlohmann::json task, const TimeUnit* deadline);
+	Task(const nlohmann::json task, const TimeUnit* deadline, 
+		int oUD[]);
 
 	/**
 	 * @brief Destructor for the Task instance.

@@ -148,18 +148,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\Common\nlohmann\json.hpp" />
+    <ClInclude Include="..\..\..\..\include\Common\Task.h" />
+    <ClInclude Include="..\..\..\..\include\Common\TimeUnit.h" />
     <ClInclude Include="..\..\..\..\include\EDFAlgorithm\Core.h" />
     <ClInclude Include="..\..\..\..\include\EDFAlgorithm\Queue.h" />
     <ClInclude Include="..\..\..\..\include\EDFAlgorithm\Scheduler.h" />
-    <ClInclude Include="..\..\..\..\include\EDFAlgorithm\Task.h" />
-    <ClInclude Include="..\..\..\..\include\EDFAlgorithm\TimeUnit.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\Common\Task.cpp" />
+    <ClCompile Include="..\..\..\..\src\Common\TimeUnit.cpp" />
     <ClCompile Include="..\..\..\..\src\EDFAlgorithm\Core.cpp" />
     <ClCompile Include="..\..\..\..\src\EDFAlgorithm\Queue.cpp" />
     <ClCompile Include="..\..\..\..\src\EDFAlgorithm\Scheduler.cpp" />
-    <ClCompile Include="..\..\..\..\src\EDFAlgorithm\Task.cpp" />
-    <ClCompile Include="..\..\..\..\src\EDFAlgorithm\TimeUnit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\data\sampleTasks.json" />

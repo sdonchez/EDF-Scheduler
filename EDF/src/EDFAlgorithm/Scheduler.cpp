@@ -6,6 +6,7 @@ TimeUnit* currentUnit;
 TaskQueue tasks;
 bool doServiceCores = true;
 bool doStartUnit = true;
+std::vector<int> outstandingUnitsDue;
 
 
 void initCores(unsigned int numCores)
@@ -32,6 +33,7 @@ void initTimeUnits(unsigned int numUnits, unsigned int numClocks)
 	for (unsigned int i = 0; i < numUnits; i++)
 	{
 		timeUnits.push_back(new TimeUnit(i, numClocks));
+		outstandingUnitsDue.push_back(0);
 #ifdef DEBUG_TIMEUNITS
 		std::cout << "Created TimeUnit " << i << std::endl;
 #endif // DEBUG_TIMEUNITS
@@ -76,7 +78,7 @@ void processNewTask(nlohmann::json jsonTask)
 #endif // _DEBUG
 
 	TimeUnit* deadline = findTimeUnit(jsonTask["deadline"]);
-	Task* newTask = new Task(jsonTask, deadline);
+	Task* newTask = new Task(jsonTask, deadline, outstandingUnitsDue.data());
 #ifdef DEBUG_TASKS
 	std::cout << "Created Task object. taskName = " << newTask->taskName <<
 		". taskId = " << newTask->taskId << ". unitsToExecute = " <<
