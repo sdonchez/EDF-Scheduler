@@ -56,6 +56,9 @@
     <ClInclude Include="..\..\..\..\include\Common\TimeUnit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Common\CommonDefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\data\sampleTasks.json">

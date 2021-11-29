@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\include\Common\CommonDefs.h" />
     <ClInclude Include="..\..\..\..\include\Common\nlohmann\json.hpp" />
     <ClInclude Include="..\..\..\..\include\Common\Task.h" />
     <ClInclude Include="..\..\..\..\include\Common\TimeUnit.h" />

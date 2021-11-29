@@ -1,6 +1,7 @@
 #pragma once
 
 //Custom classes
+#include "CommonDefs.h"
 #include "Queue.h"
 #include "Task.h"
 #include "Core.h"
@@ -38,13 +39,6 @@ XScuGic IntcInstance;		/* Interrupt Controller Instance */
 #define _DEBUG
 #endif
 #endif
-
-#define NUM_CORES 5
-#define CLOCKS_PER_UNIT 1000
-//TODO: Determine CLOCKS_PER_UNIT value
-
-#define UNITS_TO_SIM 1000
-//TODO: Replace with arg parsing
 
 /**
  * @brief Creates the Core instances to be scheduled.

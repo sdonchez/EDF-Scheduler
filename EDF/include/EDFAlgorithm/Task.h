@@ -47,6 +47,12 @@ public:
 	*/
 	int unitsExecuted = 0;
 
+	/**
+	 * @brief pointer to the Scheduler's outstandingUnitsToExecute array. This
+	 *        class increments the value of the task's deadline's index by
+	 *        the value of unitsToExecute at initialization, and decrements
+	 *        the same during each time unit it is executed for.
+	*/
 	int* oUD;
 
 	/**
