@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // S.Donchez
 // GeneratedTask.h - header for implementation of the class which constructs
-// Tasks for consumption by the scheduler app.
+// Tasks for consumption by the Scheduler app.
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -12,7 +12,7 @@
 #include <cstdlib>
 
 /**
- * @brief Implements a decryption task that the EDF algorithm is scheduling.
+ * @brief Generates a Task for the Scheduler to parse and schedule.
 */
 class GeneratedTask
 {
