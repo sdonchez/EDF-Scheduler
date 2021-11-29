@@ -59,12 +59,22 @@ public:
 	 * @param taskName		 - The friendly name of the task, if one is 
 							   provided, or NULL.
 	 * @param period		 - The frequency with which the task is repeated, or
-	 * 0 if it is aperiodic. (measured in TimeUnits)
+	 *                         0 if it is aperiodic. (measured in TimeUnits).
+	 * @param oUD            - A pointer to the scheduler's outstandingUnitsDue
+	 *                         array.
 	*/
 	Task(const TimeUnit* deadline, const unsigned int unitsToExecute, 
 		const unsigned int taskId, const std::string taskName = NULL, 
 		const unsigned int period = 0, int oUD[]);
 
+	/**
+	 * @brief Constructor for the Task. Assigns values to all of the task
+	 *		  properties.
+	 * @param deadline - The TimeUnit the task needs to be completed by.
+	 * @param task     - A parsed JSON object containing the various
+	 *                   attributes of the Task.
+	 * @param oUD      - A pointer to the scheduler's outstandingUnitsDue array.
+	*/
 	Task(const nlohmann::json task, const TimeUnit* deadline, 
 		int oUD[]);
 
