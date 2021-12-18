@@ -1,14 +1,14 @@
 #include "GeneratedTask.h"
 
 GeneratedTask::GeneratedTask(int const volatile* const oUD, 
-	int const volatile* const currUnit,	unsigned int utilization)
+	unsigned int const volatile* const currUnit,	unsigned int utilization)
 {
 	this->taskId = std::rand();
-	std::hash<unsigned int> idHash;
-	this->taskName = idHash(taskId); //for lack of an arbitrary word generator
+	this->taskName = "foobar"; //for lack of an arbitrary word generator
 	this->unitsToExecute = std::rand() % 100; //TODO: Parameterize this
 	this->period = 0; //TODO: Parameterize this
-	this->deadline = computeDeadline(oUD, currUnit, utilization);
+	this->deadline = computeDeadline(oUD, currUnit, utilization,
+		this->unitsToExecute);
 } //ctor
 
 GeneratedTask::~GeneratedTask()
@@ -17,25 +17,26 @@ GeneratedTask::~GeneratedTask()
 }  //dtor
 
 unsigned int GeneratedTask::computeDeadline(int const volatile* const oUD,
-	int const volatile* const currUnit, unsigned int utilization)
+	unsigned int const volatile* const currUnit, unsigned int utilization,
+	unsigned int unitsToExecute)
 {
 	bool found = false;
 	unsigned int guess = 0;
 	unsigned int range = 0;
-	unsigned int currFixed = *currUnit; //eliminates edge case of TU change
+	unsigned int minDeadline = *currUnit + unitsToExecute; //eliminates edge case of TU change
 	while (!found)
 	{
-		range = UNITS_TO_SIM - currFixed;
-		guess = currFixed + std::rand() % range;
+		range = UNITS_TO_SIM - minDeadline;
+		guess = minDeadline + std::rand() % range;
 		found = utilizationCheck(oUD, currUnit, utilization, guess);
 
-		currFixed = *currUnit;
+		minDeadline = *currUnit + unitsToExecute; //refresh in case of TU change;
 	} //while
 	return guess;
 }
 
 bool GeneratedTask::utilizationCheck(int const volatile* const oUD,
-	int const volatile* const currUnit, unsigned int utilization,
+	unsigned int const volatile* const currUnit, unsigned int utilization,
 	unsigned int unitNum)
 {
 	//sanity check in case the TU changed between computing range and verifying
@@ -58,7 +59,7 @@ bool GeneratedTask::utilizationCheck(int const volatile* const oUD,
 	 * 
 	*/
 	int runningSum = this->unitsToExecute;
-	for (int i = 0; i <= unitNum; i++)
+	for (unsigned int i = 0; i <= unitNum; i++)
 	{
 		runningSum += oUD[i];
 	} //for

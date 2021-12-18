@@ -57,7 +57,7 @@ const TimeUnit* TaskQueue::earliestDeadline()
 
 bool TaskQueue::swapTest(const Task* task1, const Task* task2)
 {
-	return (*task1->deadline > *task2->deadline);
+	return (*task1->deadline < *task2->deadline);
 } //swapTest
 
 /**

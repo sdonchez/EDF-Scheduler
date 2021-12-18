@@ -82,8 +82,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)..\..\..\..\include\Common;$(ProjectDir)..\..\..\..\include\EDFAlgorithm;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)..\..\..\bin\</OutDir>
-    <IntDir>$(SolutionDir)..\..\..\obj\</IntDir>
+    <OutDir>$(SolutionDir)..\..\..\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\..\obj\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -121,7 +121,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);WIN_64;TARGET_MS_WINDOWS;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);WIN_64;TARGET_MS_WINDOWS;DEBUG_TIMER</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -156,11 +156,11 @@
     <ClInclude Include="..\..\..\..\include\EDFAlgorithm\Scheduler.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\Common\Task.cpp" />
     <ClCompile Include="..\..\..\..\src\Common\TimeUnit.cpp" />
     <ClCompile Include="..\..\..\..\src\EDFAlgorithm\Core.cpp" />
     <ClCompile Include="..\..\..\..\src\EDFAlgorithm\Queue.cpp" />
     <ClCompile Include="..\..\..\..\src\EDFAlgorithm\Scheduler.cpp" />
+    <ClCompile Include="..\..\..\..\src\EDFAlgorithm\Task.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\data\sampleTasks.json" />

@@ -12,19 +12,26 @@
 #include <stdio.h> //for input ingestion
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 
 #ifdef TARGET_MS_WINDOWS
 #include <Windows.h>
 #include <WinUser.h>
 #include <iostream>
-#endif
+#include <winbase.h>
+#include <conio.h>
 
-#ifdef TARGET_ZED
+#else
 #include "xparameters.h"
 #include "xscutimer.h"
 #include "xscugic.h"
 #include "xil_exception.h"
 #include "xil_printf.h"
+#include <sys/msg.h>
+#include <sys/sem.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 XScuTimer TimerInstance;	/* Cortex A9 Scu Private Timer Instance */
 XScuGic IntcInstance;		/* Interrupt Controller Instance */
@@ -35,6 +42,7 @@ XScuGic IntcInstance;		/* Interrupt Controller Instance */
 #define DEBUG_TIMER
 #define DEBUG_CORES
 #define DEBUG_TIMEUNITS
+#define DEBUG_IPC
 #ifndef _DEBUG
 #define _DEBUG
 #endif
@@ -97,12 +105,17 @@ void coreServicerThread();
  * @brief Restarts the TimeUnit timer when the callback sets the doStartUnit
  *		  flag, provided the last TimeUnit hasn't already executed.
 */
-void timerManagerThread();
+void timerManagerThread(LPCTSTR* oUDBuf, LPCTSTR* currUnitBuf);
 
 /**
  * @brief Loop that waits for a line on standard input, then parses it to create
  *		  a Task object
 */
-void taskParserThread();
+void taskParserThread(
+#ifdef TARGET_MS_WINDOWS
+	HANDLE* hPipe,
+	DWORD dwRead
+#endif
+);
 
 int main(unsigned int argc, char* argv[]);

@@ -70,8 +70,8 @@ public:
 	 *                         array.
 	*/
 	Task(const TimeUnit* deadline, const unsigned int unitsToExecute, 
-		const unsigned int taskId, const std::string taskName = NULL, 
-		const unsigned int period = 0, int oUD[]);
+		const unsigned int taskId, int oUD[], const std::string taskName = NULL,
+		const unsigned int period = 0);
 
 	/**
 	 * @brief Constructor for the Task. Assigns values to all of the task

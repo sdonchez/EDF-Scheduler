@@ -30,10 +30,10 @@
     <ClCompile Include="..\..\..\..\src\EDFAlgorithm\Scheduler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\Common\Task.cpp">
+    <ClCompile Include="..\..\..\..\src\Common\TimeUnit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\Common\TimeUnit.cpp">
+    <ClCompile Include="..\..\..\..\src\EDFAlgorithm\Task.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

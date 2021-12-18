@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "CommonDefs.h""
+#include "CommonDefs.h"
 #include "nlohmann\json.hpp" //For parsing tasks from stdin
 #include <string> //for taskName
 #include <functional>
@@ -60,7 +60,7 @@ public:
 	 *		 since the testbench is never modifying them.
 	*/
 	GeneratedTask(int const volatile* const oUD,
-		int const volatile* const currUnit, unsigned int utilization);
+		unsigned int const volatile* const currUnit, unsigned int utilization);
 
 	/**
 	 * @brief destructor for the GeneratedTask instance.
@@ -83,7 +83,8 @@ public:
 	 * @return the unitNum of a valid deadline.
 	*/
 	unsigned int computeDeadline(int const volatile* const oUD,
-		int const volatile* const currUnit, unsigned int utilization);
+		unsigned int const volatile* const currUnit, unsigned int utilization,
+		unsigned int unitsToExecute);
 
 	/**
 	 * @brief 
@@ -102,7 +103,7 @@ public:
 	 * @return true if the deadline is valid, false otherwise.
 	*/
 	bool utilizationCheck(int const volatile* const oUD,
-		int const volatile* const currUnit, unsigned int utilization,
+		unsigned int const volatile* const currUnit, unsigned int utilization,
 		unsigned int unitNum);
 
 	/**
