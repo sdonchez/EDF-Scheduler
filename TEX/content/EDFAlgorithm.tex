@@ -1,10 +1,12 @@
 % !TeX root = ../SDonchezResearchIReport.tex
-\chapter{AES Engine Scheduling}\label{chap:EDFAlgorithm}
+
+\section{AES Engine Scheduling}\label{sec:EDFAlgorithm}
+
 Since the AES engine is decrypting a bitstream, as opposed to a simple key (as is the case in the KAC engine), it will necessarily be occupied for a considerably longer period of time than the KAC engine for each reconfiguration cycle. Furthermore, since the trend in cloud infrastructure is to implement large devices with many partitions rather than many smaller ones, it is likely that a single AES engine per PFPGA will be insufficient to accomodate the partial reconfiguration needs of said device's tenants.
 
-To this end, this architecture proposes the implementation of multiple discrete AES cores, each of which may be attached to a partition for the purposes of facilitating a decryption operation as part of the reconfiguration process. This necessitates the scheduling and allocation of these resources in a fashion that takes into account the real-world constraints of the CSP. To this end, this architecture proposes an Earliest Deadline First (EDF) scheduling algorithm, to be implemented on the Hard Processor System (HPS) of the heterogenous system. This algorithm, including its assumptions, constraints, and implementation, is outlined in the following sections.
+To this end, this architecture proposes the implementation of multiple discrete AES cores, each of which may be attached to a partition for the purposes of facilitating a decryption operation as part of the reconfiguration process. This necessitates the scheduling and allocation of these resources in a fashion that takes into account the real-world constraints of the CSP. To this end, this architecture proposes an Earliest Deadline First (EDF) scheduling algorithm, to be implemented on the Hard Processor System (HPS) of the heterogenous system. This algorithm, including its assumptions, constraints, and design, is outlined in the following sections.
 
-\section{Assumptions}\label{sec:EDFAssumptions}
+\subsection{Assumptions}\label{subsec:EDFAssumptions}
 The following assumptions are made regarding the implementation of the AES core scheduling process for this architecture:
 \begin{itemize}
     \item The time required to decrypt a given partial bitstream increases linearly with a corresponding increase in file size.
@@ -17,7 +19,7 @@ The following assumptions are made regarding the implementation of the AES core 
     \item Due to the nature of the environment in which the algorithm is being implemented, it is important to note that tasks are random and likely aperiodic in nature.
 \end{itemize}
 
-\section{Design Constraints}\label{sec:EDFConstraints}
+\subsection{Constraints}\label{subsec:EDFConstraints}
 The implementation outlined in subsequent sections will be subject to the following set of design constraints, imposed by the assumptions listed in the preceeding section as well as best practices:
 \begin{itemize}
     \item In the event of a tie between two task for the next time unit, where one task is the task that was operated on in the previous time unit, the task which was previously being executed shall continue to be executed, in order to elimintate overhead associated with context switching between tasks.
@@ -30,8 +32,8 @@ The implementation outlined in subsequent sections will be subject to the follow
     \item The deadline associated with a processor is the deadline of the task it is currently executing, or $\infty$ if it is idle.
 \end{itemize}
 
-\section{Algorithm Implementation}\label{sec:AlgoImpl}
-The following algorithm implements the scheduling routine for the AES Cores, as governed by the constraints and assumptions outlined above:
+\subsection{Algorithm Design}\label{subsec:AlgoImpl}
+Algorithm \ref{alg:EDFAES} implements the scheduling routine for the AES Cores, as governed by the constraints and assumptions outlined above. This algoriothm serves as the guidance for the implementation of the scheduler as outlined in subsequent sections, subject to the constraints and assumptions outlined above.
 \begin{algorithm}
     \caption{EDF Scheduling Algorithm for AES Decryption Cores}\label{alg:EDFAES}
     \begin{algorithmic}
@@ -73,7 +75,7 @@ The following algorithm implements the scheduling routine for the AES Cores, as 
                         \State $T_{n_i} \gets T_{Q_0}$ \Comment{Pop $Q$}
 
                     \\
-                    \State \Comment {\parbox[t]{.82\linewidth}{If the currently executing task has a later deadline than the first task in the queue and has the latest deadline of any currently executing task across all cores.}}
+                    \State \Comment {\parbox[t]{.75\linewidth}{If the currently executing task has a later deadline than the first task in the queue and has the latest deadline of any currently executing task across all cores.}}
                     \\
 
                     \ElsIf{$(D_{n_i} > D_{Q_0})$ AND $D_{n_i} == max(D_N)$}  

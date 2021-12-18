@@ -94,7 +94,7 @@
                 "-outdir=%OUTDIR%",
                 "%DOC%"
             ],
-            "env": {}
+            "env": {"TEXINPUTS":"./LaTeX_Assets/IEEETransactions_LaTeX/IEEEtran:."}
         },
         {
             "name": "lualatexmk",
@@ -107,7 +107,7 @@
                 "-outdir=%OUTDIR%",
                 "%DOC%"
             ],
-            "env": {}
+            "env": {"TEXINPUTS":"./LaTeX_Assets/IEEETransactions_LaTeX/IEEEtran:."}
         },
         {
             "name": "latexmk_rconly",
@@ -115,7 +115,7 @@
             "args": [
                 "%DOC%"
             ],
-            "env": {}
+            "env": {"TEXINPUTS":"./LaTeX_Assets/IEEETransactions_LaTeX/IEEEtran:."}
         },
         {
             "name": "pdflatex",
@@ -126,7 +126,7 @@
                 "-file-line-error",
                 "%DOC%"
             ],
-            "env": {}
+            "env": {"TEXINPUTS":"./LaTeX_Assets/IEEETransactions_LaTeX/IEEEtran:."}
         },
         {
             "name": "bibtex",
@@ -134,7 +134,10 @@
             "args": [
                 "%DOCFILE%"
             ],
-            "env": {}
+            "env": {
+                "TEXINPUTS":"./LaTeX_Assets/IEEETransactions_LaTeX/IEEEtran:.",
+                "BSTINPUTS":"./LaTeX_Assets/IEEETransactions_LaTeX/Transactions-Bibliography:."
+            }
         },
         {
             "name": "rnw2tex",

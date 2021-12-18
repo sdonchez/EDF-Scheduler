@@ -1,64 +1,40 @@
-\documentclass[11pt,twoside]{book}   
-\usepackage{fancyhdr}           % Book class in 11 points
-\usepackage[top=1.25in]{geometry}
+\documentclass[journal]{LaTeX_Assets/IEEETransactions_LaTeX/IEEEtran/IEEEtran}
+%\documentclass[journal]{IEEEtran} %TODO: Resolve mapping issues
 \usepackage{graphicx}
-\usepackage{adjustbox}
-%\usepackage{emptypage}
-\usepackage{subcaption}
-\usepackage{rotating}
-\usepackage{appendix}
-\usepackage[hidelinks]{hyperref}
-\usepackage{import}
+\graphicspath{{./jpeg/}{LaTeX_Assets/jpeg/}}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-\parindent0pt  \parskip10pt             % make block paragraphs
-\raggedright                            % do not right justify 
-\setlength{\headheight}{13.59999pt}
-\setlength\parskip{\baselineskip}
-
-% Note that book class by default is formatted to be printed back-to-back.
-%\usepackage[defernumbers=true, backend=biber, style=ieee, dashed=false]{biblatex}
-%\usepackage{filecontents}
-%\addbibresource{bb.bib}
+\usepackage{float}
 
 \begin{document}
-\renewcommand{\bibname}{References}                   % End of preamble, start of text.
-\frontmatter                            % only in book class (roman page #s)
-\input{ECETemplate/titlepage}
-\input{ECETemplate/copyright}
 
-% \input{submissionFormIS}
-% \input{../../content/acknowledgment}
-% \input{../../content/abstract}                             % Print title page.S
-\tableofcontents                        % Print table of contents
-\listoffigures
-\listoftables
-\listofalgorithms
-\mainmatter                             % only in book class (arabic page #s)
+    \title{An EDF Scheduling Algorithm for Aperiodic Tasks in a Heterogenous SoC}
+    \author{Stephen~Donchez,~\IEEEmembership{Member,~IEEE}%
+    \thanks{S. Donchez is with Villanova University, Villanova, PA 19085 USA 
+    \mbox{e-mail:sdonchez@villanova.edu}}%
+    \thanks{Manuscript received December 19, 2021}}%
 
- \pagestyle{fancy}
- \pagestyle{fancy}
-\fancyhf{}
-\fancyhead[LE,RO]{\thepage}
-\fancyhead[RE,LO]{\leftmark}
+    \maketitle
 
-\input{content/plans} 
-\input{content/findings}
-\input{content/EDFAlgorithm}  
+    \input{content/abstract}
 
-%% Uncomment the following lines using the \part command
-%% to add part sections
-%\part{Example Part}
+    \input{content/introduction}
 
-%\phantomsection 
-\addcontentsline{toc}{chapter}{References} 
+    \input{content/plans} 
+    \input{content/EDFAlgorithm}
+    \input{content/implementation}
+    \input{content/findings}
 
-%\begin{refsection}[bb.bib]
-%\nocite{*}
-%\end{refsection}
-\bibliographystyle{ECETemplate/IEEEbib}
-\bibliography{LaTeX_Assets/SDonchezResearch}
+    \input{content/conclusion}
 
-%appendices
-% \input{../../content/chapter-appendix.tex}
-\end{document}                          % The required last line
+    \input{content/acknowledgment}
+    \bibliographystyle{LaTeX_Assets/IEEETransactions_LaTeX/Transactions-Bibliography/IEEEtran}
+ %   \bibliographystyle{IEEEtran} %TODO: Resolve mapping issues
+    \bibliography{LaTeX_Assets/SDonchezResearch}
+
+    %shrink space between bibliography and biography
+    \vskip 0pt plus -1fil
+
+    \input{LaTeX_Assets/Biography.tex}
+
+\end{document}

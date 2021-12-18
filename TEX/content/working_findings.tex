@@ -1,0 +1,22 @@
+% !TeX root = ../SDonchezResearchIReport.tex
+\section{Key Conclusions and Findings}\label{sec:Findings}
+The below sections capture brief comments relating to various findings obtained as a result of research efforts this semester. They are arranged thematically, and dates for each finding are indicated in parentheses.
+
+\subsection{Architecture}\label{subsec:Architecture}
+\begin{itemize}
+    \item Presence of both the decrypted AES key and the encrypted bitstream in the PFPGA outside the tenant partition necessitates (unwanted) trust of the CSP (9/20/21)
+    \item Allocating a dedicated AES engine to each partition in conjunction with the need for a pre-determined number of unique IDs per PFPGA (for the generation of the device's aggregate key) necessarily constrains the number of tenant partitions, and prevents dynamic resizing of said partitions based on tenant needs. (9/20/21)
+    \item Being able to securely interface a single AES core to any of the VFPGAs, in an isolated container also containing the KAC engine, would resolve both of the concerns above, as well as free up additional space on the PFPGA for tenant logic. (9/20/21)
+    \begin{itemize}
+        \item such a container would need to be attestably secure.
+        \item Such a container would also necessitate a means of secured communication with the tenant partition. One potential solution is utilizing a Trusted Execution Environment (TEE) on the Hard Processor System (HPS) co-located on the die with the PFPGA.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Cryptocores}\label{subsec:Cryptocores}
+\begin{itemize}
+    \item The AES core utilized for last semester's research effort (sourced from \cite{tsang_aes_2018}) is not pipelined, which greatly limits its performance. (9/27/21)
+    \item The AES core outlined in "Implementation of the AES-128 on Virtex-5 FPGAs" \cite{bulens_implementation_2008}, is made efficient by the fact that it utilizes the new (at the time of its publication) 6 bit LUTs implemented in the Virtex-5. The ZedBoard currently being used by this effort contains the same LUTs, making it an ideal choice (10/2/21)
+    \item Initial research efforts have not produced evidence of a publicly available KAC engine implemented in HDL (10/2/21)
+    \item The UltraScale series of SoCs have a hardware AES engine intended to facilitate DPR operations. It may be worth investigating utilizing this instead of an IP, if it can be leveraged in this manner \cite{noauthor_using_2021}.
+\end{itemize}
