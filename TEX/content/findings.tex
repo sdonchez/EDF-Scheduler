@@ -1,3 +1,47 @@
 % !TeX root = ../SDonchezResearchIReport.tex
 
 \section{Findings}\label{sec:findings}
+The implementation of the EDF algorithm and testbench on the Windows target has revealed that it is able to successfully schedule tasks at high utilization levels (in excess of 90\%) without missing deadlines, given that the requirements outlined in the design constraints and assumptions are met. Careful analysis of the scheduler's output reveals that it is scheduling in accordance with the algorithm, with only a single exception - at the end of the simulation, as the task queue depletes, the scheduler unnecessarily shifts tasks from higher index cores to vacant lower-indexed cores. Ultimately, this inconsistency is non-consequential, as in a real-world implementation it is unlikely that the task queue would ever be depleted (and also as it does not cause any tasks to miss their deadline).
+
+\subsection{Linux Implementation Difficulties}\label{linuxImplDifficulties}
+At this time, the implementation of the Scheduler and Testbench applications on the Linux target remains ongoing. For reasons as of yet unresolved, the PetaLinux SDK appears to be missing certain header files required to successfully compile the application. As such, it is difficult to quantify the performance of the scheduler on the intended target.
+
+\subsection{Scheduler Effectiveness}\label{schedulerData}
+As the primary measure of success for this scheduler implementation is how it performs under heavy load, a series of trials were conducted on the hardware target under varying levels of load in order to determine the average performance of the algorithm for each loading. These results are described in Table \ref{table:1}, below. All iterations were performed for a simulation of 1000 TimeUnits.
+
+\begin{table}[h!]
+    \centering\begin{tabular}{| c | c | c |}
+        \hline
+        Target Utilization & Units Elapsed & \% Missed \\
+        \hline
+        50\% & & \\
+        60\% & & \\
+        70\% & & \\
+        80\% & & \\
+        90\% & & \\
+        100\% & & \\
+        \hline
+    \end{tabular}
+    \caption{Scheduler Effectiveness}
+    \label{table:1}
+\end{table}
+
+\subsection{Performance Evaluation}\label{performanceData}
+Although the effectiveness of the algorithm (and its implementation) are by far the most important criteria for evaluating their success, it is also important to consider the performance of the application. In the context of the larger system outlined in Section \ref{sec:Proposal}, a number of other processes will likely have to execute on the single core available on the hardware target. Accordingly, it is crucial that the scheduler is not overtaxing the HPS, such that the other portions of the system are also able to execute as needed. Accordingly, Table \ref{table:2}, below, reports on the total utilization time of the processor for each of the iterations above.
+
+\begin{table}[h!]
+    \centering\begin{tabular}{| c | c | c | c | c |}
+        \hline
+        Utilization & Clock Time & User Time & System Time & RAM Used \\
+        \hline
+        50\% & & & & \\
+        60\% & & & & \\
+        70\% & & & & \\
+        80\% & & & &\\
+        90\% & & & &\\
+        100\% & & & &\\
+        \hline
+    \end{tabular}
+    \caption{Scheduler Performance}
+    \label{table:2}
+\end{table}

@@ -35,7 +35,7 @@ The implementation outlined in subsequent sections will be subject to the follow
 \subsection{Algorithm Design}\label{subsec:AlgoImpl}
 Algorithm \ref{alg:EDFAES} implements the scheduling routine for the AES Cores, as governed by the constraints and assumptions outlined above. This algorithm serves as the guidance for the implementation of the scheduler as outlined in subsequent sections, subject to the constraints and assumptions outlined above.
 \begin{algorithm}
-    \caption{EDF Scheduling Algorithm for AES Decryption Cores}\label{alg:EDFAES}
+    \caption{Global EDF Scheduling Algorithm for AES Decryption Cores}\label{alg:EDFAES}
     \begin{algorithmic}
 
         %define foreach since it isn't included
@@ -43,14 +43,14 @@ Algorithm \ref{alg:EDFAES} implements the scheduling routine for the AES Cores, 
         % \algdef{S}[FOR]{ForEach}[1]{\algorithmicforeach\ #1\ \algorithmicdo}
         % \algnewcommand\algorithmicendforeach{\textbf{end for each}}
         % \algdef{E}[FOR]{EndForEach}[1]{\algorithmicendforeach\ #1\ \algorithmicend}
-
-        \State // Variables: 
-        \State // N - the set of cores to be utilized
-        \State // Q - the queue containing all tasks currently pending execution
-        \State // $T_{n_i}$ - the task assigned to a given core
-        \State // $D_t$ - the delay associated with a given task
-        \State // $D_{n_i}$ - the delay associated with the task currently executing on a core (for brevity)
-        \State // $D_{Q_i}$ - the delay associated with the task at a given position in the queue (for brevity)
+        \State We consider a task set $\uptau$ consisting of $x$ tasks $T_1$ , . . . , $T_n$ that are sporadically released from the CSP with arbitrary deadlines
+        \State Variables: 
+        \State N - the set of cores to be utilized
+        \State Q - the queue containing all tasks currently pending execution
+        \State $T_{n_i}$ - the task assigned to a given core
+        \State $D_t$ - the delay associated with a given task
+        \State $D_{n_i}$ - the delay associated with the task currently executing on a core (for brevity)
+        \State $D_{Q_i}$ - the delay associated with the task at a given position in the queue (for brevity)
 
         \\
 
