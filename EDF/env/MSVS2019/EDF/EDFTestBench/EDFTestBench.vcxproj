@@ -21,10 +21,13 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\Common\CommonDefs.h" />
     <ClInclude Include="..\..\..\..\include\Common\nlohmann\json.hpp" />
+    <ClInclude Include="..\..\..\..\include\Common\pugixml\pugiconfig.hpp" />
+    <ClInclude Include="..\..\..\..\include\Common\pugixml\pugixml.hpp" />
     <ClInclude Include="..\..\..\..\include\Common\TimeUnit.h" />
     <ClInclude Include="..\..\..\..\include\EDFTestbench\GeneratedTask.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\include\Common\pugixml\pugixml.cpp" />
     <ClCompile Include="..\..\..\..\src\EDFTestbench\GeneratedTask.cpp" />
     <ClCompile Include="..\..\..\..\src\EDFTestbench\Generator.cpp" />
   </ItemGroup>

@@ -121,13 +121,14 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);WIN_64;TARGET_MS_WINDOWS;DEBUG_TIMER</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);WIN_64;TARGET_MS_WINDOWS;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -149,13 +150,16 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\Common\CommonDefs.h" />
     <ClInclude Include="..\..\..\..\include\Common\nlohmann\json.hpp" />
-    <ClInclude Include="..\..\..\..\include\Common\Task.h" />
+    <ClInclude Include="..\..\..\..\include\Common\pugixml\pugiconfig.hpp" />
+    <ClInclude Include="..\..\..\..\include\Common\pugixml\pugixml.hpp" />
     <ClInclude Include="..\..\..\..\include\Common\TimeUnit.h" />
     <ClInclude Include="..\..\..\..\include\EDFAlgorithm\Core.h" />
     <ClInclude Include="..\..\..\..\include\EDFAlgorithm\Queue.h" />
     <ClInclude Include="..\..\..\..\include\EDFAlgorithm\Scheduler.h" />
+    <ClInclude Include="..\..\..\..\include\EDFAlgorithm\Task.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\include\Common\pugixml\pugixml.cpp" />
     <ClCompile Include="..\..\..\..\src\Common\TimeUnit.cpp" />
     <ClCompile Include="..\..\..\..\src\EDFAlgorithm\Core.cpp" />
     <ClCompile Include="..\..\..\..\src\EDFAlgorithm\Queue.cpp" />

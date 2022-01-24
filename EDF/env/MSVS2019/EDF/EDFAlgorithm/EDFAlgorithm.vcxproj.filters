@@ -19,6 +19,12 @@
     <Filter Include="Data">
       <UniqueIdentifier>{fdd69bf2-0c0a-469e-9d34-58cfdf4dbc3c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\pugixml">
+      <UniqueIdentifier>{cdfea25d-aba9-43ea-896c-bd134b95bb1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\pugixml">
+      <UniqueIdentifier>{f76c8032-c236-4f7e-ac7b-ac5a06e0e0d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\EDFAlgorithm\Core.cpp">
@@ -36,6 +42,9 @@
     <ClCompile Include="..\..\..\..\src\EDFAlgorithm\Task.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\include\Common\pugixml\pugixml.cpp">
+      <Filter>Source Files\pugixml</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\EDFAlgorithm\Core.h">
@@ -50,13 +59,19 @@
     <ClInclude Include="..\..\..\..\include\Common\nlohmann\json.hpp">
       <Filter>Header Files\nlohmann</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Common\Task.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\Common\TimeUnit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\Common\CommonDefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Common\pugixml\pugiconfig.hpp">
+      <Filter>Header Files\pugixml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Common\pugixml\pugixml.hpp">
+      <Filter>Header Files\pugixml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\EDFAlgorithm\Task.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

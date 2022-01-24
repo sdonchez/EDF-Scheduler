@@ -70,6 +70,7 @@ bool GeneratedTask::utilizationCheck(int const volatile* const oUD,
 	return ( load < utilization);
 } //utilizationCheck
 
+#ifdef USE_JSON
 std::string GeneratedTask::toJson()
 {
 	nlohmann::json j;
@@ -81,3 +82,35 @@ std::string GeneratedTask::toJson()
 
 	return j.dump();
 } //toJson
+
+#else
+std::string GeneratedTask::toXMLSerialized()
+{
+
+	//initialize document with single node
+	pugi::xml_document xmlTaskDoc;
+	pugi::xml_node xmlTask = xmlTaskDoc.append_child("Task");
+
+	//create attributes
+	pugi::xml_attribute taskName = xmlTask.append_attribute("taskName");
+	pugi::xml_attribute taskId = xmlTask.append_attribute("taskId");
+	pugi::xml_attribute unitsToExecute = xmlTask.append_attribute("unitsToExecute");
+	pugi::xml_attribute deadline = xmlTask.append_attribute("deadline");
+	pugi::xml_attribute period = xmlTask.append_attribute("period");
+
+	//set attribute values
+	taskName.set_value(this->taskName.c_str());
+	taskId.set_value(this->taskId);
+	unitsToExecute.set_value(this->unitsToExecute);
+	deadline.set_value(this->deadline);
+	period.set_value(this->period);
+
+	//init writer (write to string)
+	xml_string_writer xmlTaskSerialized;
+	xmlTaskDoc.save(xmlTaskSerialized);
+
+	//return serialized output
+	return xmlTaskSerialized.result;
+}
+
+#endif

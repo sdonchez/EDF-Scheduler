@@ -6,7 +6,12 @@
 #include "Task.h"
 #include "Core.h"
 #include "TimeUnit.h"
+#ifdef USEJSON
 #include "nlohmann\json.hpp" //for input parsing
+#else
+#include "pugixml\pugixml.hpp" //for input parsing
+#endif
+
 #include <vector> //for processor and task arrays
 #include <thread> //for concurrent operations
 #include <stdio.h> //for input ingestion
@@ -69,12 +74,22 @@ void initTimeUnits(unsigned int numUnits, unsigned int numClocks);
 */
 TimeUnit* findTimeUnit(unsigned int unitId);
 
+
+#ifdef USE_JSON
 /**
  * @brief Converts a JSON task description to a Task object.
  * @param jsonTask - The JSON object (not a string) containing the task
  *					 information.
 */
 void processNewTask(nlohmann::json jsonTask);
+#else
+/**
+ * @brief Converts an XML task description to a Task object.
+ * @param xmlTask - The XML object (not a string) containing the task
+ *					 information.
+*/
+void processNewTask(pugi::xml_document xmlTask);
+#endif
 
 /**
  * @brief Swaps the current task on a core if necessary, then runs the task for

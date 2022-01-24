@@ -15,6 +15,7 @@ Task::Task(const TimeUnit* deadline, const unsigned int unitsToExecute,
 	oUD[this->deadline->unitNum] += this->unitsToExecute;
 } //ctor
 
+#ifdef USE_JSON
 Task::Task(const nlohmann::json task, const TimeUnit* deadline, 
 	int oUD[]):
 	deadline(deadline), unitsToExecute(task["unitsToExecute"]), 
@@ -23,6 +24,21 @@ Task::Task(const nlohmann::json task, const TimeUnit* deadline,
 {
 	oUD[this->deadline->unitNum] += this->unitsToExecute;
 }
+
+#else
+Task::Task(const pugi::xml_document* task, const TimeUnit* deadline,
+	int oUD[]) :
+	deadline(deadline), 
+	unitsToExecute(atoi(task->child("Task").attribute("unitsToExecute").value())),
+	taskName(task->child("Task").attribute("taskName").value()), 
+	taskId(atoi(task->child("Task").attribute("taskId").value())), 
+	period(atoi(task->child("Task").attribute("period").value())),
+	oUD(oUD)
+{
+	oUD[this->deadline->unitNum] += this->unitsToExecute;
+}
+
+#endif
 
 Task::~Task()
 {

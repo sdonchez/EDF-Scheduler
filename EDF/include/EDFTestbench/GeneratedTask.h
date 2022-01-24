@@ -6,7 +6,11 @@
 
 #pragma once
 #include "CommonDefs.h"
-#include "nlohmann\json.hpp" //For parsing tasks from stdin
+#ifdef USEJSON
+#include "nlohmann\json.hpp" //for input parsing
+#else
+#include "pugixml\pugixml.hpp" //for input parsing
+#endif
 #include <string> //for taskName
 #include <functional>
 #include <cstdlib>
@@ -106,10 +110,14 @@ public:
 		unsigned int const volatile* const currUnit, unsigned int utilization,
 		unsigned int unitNum);
 
+#ifdef USE_JSON
 	/**
 	 * @brief parses the Task into a JSON string such that it can be sent.
 	 * @return serialized JSON representation of the Task, including all
 	 *         attributes. The deadline is stored simply as its unitNum.
 	*/
 	std::string toJson();
+#else
+	std::string toXMLSerialized();
+#endif
 }; //GeneratedTask

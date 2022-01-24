@@ -31,7 +31,7 @@
 #endif
 #endif
 
-#define TARGET_UTILIZATION 99 //TODO: Replace with arg parsing
+#define TARGET_UTILIZATION 100 //TODO: Replace with arg parsing
 
 int volatile* oUD;
 unsigned int volatile* currUnit;
@@ -292,7 +292,11 @@ currUnit = *currUnitBuf;
 		{
 			GeneratedTask task(oUD, currUnit, TARGET_UTILIZATION);
 			totalUnits += task.unitsToExecute;
+#ifdef USE_JSON
 			std::string taskStr = task.toJson();
+#else
+			std::string taskStr = task.toXMLSerialized();
+#endif
 			std::cout << taskStr << std::endl;
 
 #ifdef TARGET_MS_WINDOWS

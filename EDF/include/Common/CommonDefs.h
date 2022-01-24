@@ -1,4 +1,9 @@
 #pragma once
+
+#ifndef USE_JSON
+#include "pugixml\pugixml.hpp" //for input parsing
+#endif
+
 #define NUM_CORES 4
 #define CLOCKS_PER_UNIT 1000
 //TODO: Determine CLOCKS_PER_UNIT value
@@ -34,4 +39,16 @@ union semun {
 	ushort *array
 };
 
+#endif
+
+#ifndef USE_JSON
+struct xml_string_writer : pugi::xml_writer
+{
+	std::string result;
+
+	virtual void write(const void* data, size_t size)
+	{
+		result.append(static_cast<const char*>(data), size);
+	}
+};
 #endif

@@ -16,6 +16,12 @@
     <Filter Include="Header Files\nlohmann">
       <UniqueIdentifier>{be60bbb4-d01e-4b18-a722-f4391aa0b071}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\pugixml">
+      <UniqueIdentifier>{9b9f0982-a95d-4cec-a0fc-a62716e88894}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\pugixml">
+      <UniqueIdentifier>{d40c5b02-c987-4cb5-bf24-fdf92471820e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\EDFTestbench\GeneratedTask.h">
@@ -30,6 +36,12 @@
     <ClInclude Include="..\..\..\..\include\Common\CommonDefs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Common\pugixml\pugiconfig.hpp">
+      <Filter>Header Files\pugixml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Common\pugixml\pugixml.hpp">
+      <Filter>Header Files\pugixml</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\EDFTestbench\GeneratedTask.cpp">
@@ -37,6 +49,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\EDFTestbench\Generator.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\include\Common\pugixml\pugixml.cpp">
+      <Filter>Source Files\pugixml</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

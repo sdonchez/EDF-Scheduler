@@ -5,7 +5,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "nlohmann\json.hpp" //For parsing tasks from stdin
+#ifdef USEJSON
+#include "nlohmann\json.hpp" //for input parsing
+#else
+#include "pugixml\pugixml.hpp" //for input parsing
+#endif
 #include "TimeUnit.h" //Since tasks have time constraints
 #include <string> //for taskName
 
@@ -73,6 +77,7 @@ public:
 		const unsigned int taskId, int oUD[], const std::string taskName = NULL,
 		const unsigned int period = 0);
 
+#ifdef USE_JSON
 	/**
 	 * @brief Constructor for the Task. Assigns values to all of the task
 	 *		  properties.
@@ -83,7 +88,18 @@ public:
 	*/
 	Task(const nlohmann::json task, const TimeUnit* deadline, 
 		int oUD[]);
-
+#else
+	/**
+ * @brief Constructor for the Task. Assigns values to all of the task
+ *		  properties.
+ * @param deadline - The TimeUnit the task needs to be completed by.
+ * @param task     - A parsed XML object containing the various
+ *                   attributes of the Task.
+ * @param oUD      - A pointer to the scheduler's outstandingUnitsDue array.
+*/
+	Task(const pugi::xml_document* task, const TimeUnit* deadline,
+		int oUD[]);
+#endif
 	/**
 	 * @brief Destructor for the Task instance.
 	*/

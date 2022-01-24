@@ -70,6 +70,7 @@ TimeUnit* findTimeUnit(unsigned int unitNum)
 	return nullptr;
 }
 
+#ifdef USE_JSON
 /**
  * expects a JSON containing the fields "unitsToExecute", "taskName", "taskId",
  * and "period".
@@ -93,6 +94,35 @@ void processNewTask(nlohmann::json jsonTask)
 	std::cout << "Task inserted into TaskQueue." << std::endl;
 #endif
 }
+
+#else
+/**
+ * expects an XML Document containing the fields "unitsToExecute", "taskName",
+ * "taskId", and "period".
+*/
+void processNewTask(pugi::xml_document* xmlTaskDoc)
+{
+#ifdef _DEBUG
+	xml_string_writer xmlStr;
+	xmlTaskDoc->print(xmlStr);
+	std::cout << "New Task Received:" << xmlStr.result << std::endl;
+#endif // _DEBUG
+	pugi::xml_node xmlTask = xmlTaskDoc->child("Task");
+	TimeUnit* deadline = findTimeUnit(atoi(xmlTask.attribute("deadline")
+		.value()));
+	Task* newTask = new Task(xmlTaskDoc, deadline, outstandingUnitsDue.data());
+#ifdef DEBUG_TASKS
+	std::cout << "Created Task object. taskName = " << newTask->taskName <<
+		". taskId = " << newTask->taskId << ". unitsToExecute = " <<
+		newTask->unitsToExecute << ". Period = " << newTask->period <<
+		". unitNum = " << newTask->deadline->unitNum << "." << std::endl;
+#endif
+	tasks.insert(newTask);
+#ifdef DEBUG_TASKS
+	std::cout << "Task inserted into TaskQueue." << std::endl;
+#endif
+}
+#endif
 
 bool isLatestCore(Core* core)
 {
@@ -484,12 +514,28 @@ void taskParserThread(
 #endif
 		size_t pos = 0;
 		std::string token;
+
+#ifdef USE_JSON
 		while ((pos = taskStr.find("}")) != std::string::npos) {
 			token = taskStr.substr(0, pos+1);
 			taskLog << token << std::endl;
 			processNewTask(nlohmann::json::parse(token));
 			taskStr.erase(0, pos + 1);
 		}
+#else
+		while ((pos = taskStr.find("/>")) != std::string::npos) {
+			token = taskStr.substr(0, pos + 7);
+			taskLog << token << std::endl;
+			pugi::xml_document doc;
+			pugi::xml_parse_result parseResult = doc.load_string(token.c_str());
+#ifdef DEBUG_TASKS
+			std::cout << "Task Parse Result: " << parseResult.description <<
+				std::endl;
+#endif
+			processNewTask(&doc);
+			taskStr.erase(0, pos + 7);
+		}
+#endif
 	}
 }
 
