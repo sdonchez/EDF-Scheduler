@@ -14,12 +14,12 @@ As the primary measure of success for this scheduler implementation is how it pe
         \hline
         Target Utilization & Units Elapsed & \% Missed \\
         \hline
-        50\% & & \\
-        60\% & & \\
-        70\% & & \\
-        80\% & & \\
-        90\% & & \\
-        100\% & & \\
+        50\% & 630 & 0\% \\
+        60\% & 679 & 0\% \\
+        70\% & 847 & 0\% \\
+        80\% & 918 & 0\% \\
+        90\% & 992 & 3\% \\
+        100\% & 1000 & 6\% \\
         \hline
     \end{tabular}
     \caption{Scheduler Effectiveness}
@@ -32,14 +32,14 @@ Although the effectiveness of the algorithm (and its implementation) are by far 
 \begin{table}[h!]
     \centering\begin{tabular}{| c | c | c | c | c |}
         \hline
-        Utilization & Clock Time & User Time & System Time & RAM Used \\
+        Utilization & MAX CPU & User Cycles & Sys Cycles & RAM Used \\
         \hline
-        50\% & & & & \\
-        60\% & & & & \\
-        70\% & & & & \\
-        80\% & & & &\\
-        90\% & & & &\\
-        100\% & & & &\\
+        50\% & 17\% & 16548 Cyc & 7906 Cyc & 1.3MB \\
+        60\% & 17\% & 16287 Cyc & 7137 Cyc & 1.3MB \\
+        70\% & 17\% & 16190 Cyc & 6510 Cyc & 1.3MB \\
+        80\% & 17\% & 15561 Cyc & 4921 Cyc & 1.3MB \\
+        90\% & 17\% & 15375 Cyc & 4270 Cyc & 1.3 MB \\
+        100\% & 17\% & 15506 Cyc & 4277 Cyc & 1.3 MB \\
         \hline
     \end{tabular}
     \caption{Scheduler Performance}
