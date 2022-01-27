@@ -1,0 +1,4 @@
+.analytics
+*.log
+.metadata/
+RemoteSystemsTempFiles/

@@ -1,0 +1,8 @@
+//arch = zynq; split = false; format = BIN
+the_ROM_image:
+{
+	[bootloader]/workspaces/Research-I/EDF/zedboard-petalinux-gpio/images/linux/zynq_fsbl.elf
+	/workspaces/Research-I/EDF/env/Vitis2020.2/zed_EDF/_ide/bitstream/hw_zed_gpio.bit
+	/workspaces/Research-I/EDF/zedboard-petalinux-gpio/images/linux/image.ub
+	/workspaces/Research-I/EDF/zedboard-petalinux-gpio/images/linux/rootfs.cpio
+}
