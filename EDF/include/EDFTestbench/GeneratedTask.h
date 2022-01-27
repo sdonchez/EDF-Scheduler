@@ -6,10 +6,10 @@
 
 #pragma once
 #include "CommonDefs.h"
-#ifdef USEJSON
-#include "nlohmann\json.hpp" //for input parsing
+#ifdef USE_JSON
+#include "nlohmann/json.hpp" //for input parsing
 #else
-#include "pugixml\pugixml.hpp" //for input parsing
+#include "pugixml/pugixml.hpp" //for input parsing
 #endif
 #include <string> //for taskName
 #include <functional>

@@ -36,7 +36,65 @@
 int volatile* oUD;
 unsigned int volatile* currUnit;
 
-int main(unsigned int argc, char* argv[])
+#ifndef TARGET_MS_WINDOWS
+/*
+** initsem() -- more-than-inspired by W. Richard Stevens' UNIX Network
+** Programming 2nd edition, volume 2, lockvsem.c, page 295.
+*/
+int initsem(key_t key, int nsems)  /* key from ftok() */
+{
+	union semun arg;
+	struct semid_ds buf;
+	struct sembuf sb;
+	int semid;
+
+	semid = semget(key, nsems, IPC_CREAT | IPC_EXCL | 0666);
+
+	if (semid >= 0) { /* we got it first */
+		sb.sem_op = 1; sb.sem_flg = 0;
+		arg.val = 1;
+
+		printf("press return\n"); getchar();
+
+		for (sb.sem_num = 0; sb.sem_num < nsems; sb.sem_num++) {
+			/* do a semop() to "free" the semaphores. */
+			/* this sets the sem_otime field, as needed below. */
+			if (semop(semid, &sb, 0) == -1) {
+				int e = errno;
+				semctl(semid, 0, IPC_RMID); /* clean up */
+				errno = e;
+				return -1; /* error, check errno */
+			}
+		}
+
+	}
+	else if (errno == EEXIST) { /* someone else got it first */
+		int ready = 0;
+
+		semid = semget(key, nsems, 0); /* get the id */
+		if (semid < 0) return semid; /* error, check errno */
+
+		/* wait for other process to initialize the semaphore: */
+		arg.buf = &buf;
+		while( !ready) {
+			semctl(semid, nsems - 1, IPC_STAT, arg);
+			if (arg.buf->sem_otime != 0) {
+				ready = 1;
+			}
+			else {
+				sleep(1);
+			}
+		}
+	}
+	else {
+		return semid; /* error, check errno */
+	}
+
+	return semid;
+}
+#endif
+
+int main(int argc, char* argv[])
 {
 	int maxUnits = (int)((UNITS_TO_SIM * NUM_CORES) * (TARGET_UTILIZATION / 100.0));
 	int totalUnits = 0;
@@ -169,11 +227,9 @@ int main(unsigned int argc, char* argv[])
 #else //if ARM
 
 #ifdef _DEBUG
-std::cout << "Setting up SysV Message Queue for JSON" << std::endl;
+	std::cout << "Setting up SysV Message Queue for JSON" << std::endl;
 #endif
 
-	union semun arg;
-	struct semid_ds buf;
 	struct sembuf sb;
 	int semid;
 	key_t queueKey = ftok(FIFOPATH, FIFOID);
@@ -181,17 +237,15 @@ std::cout << "Setting up SysV Message Queue for JSON" << std::endl;
 
 
 #ifdef _DEBUG
-	std::cout << "Setting up Semaphore to wait for scheduler".
+	std::cout << "Setting up Semaphore to wait for scheduler" << std::endl;
 #endif
 
 #ifdef _DEBUG
-std::cout << "Waiting for Scheduler to connect" << std::endl;
+	std::cout << "Waiting for Scheduler to connect" << std::endl;
 #endif
 
 //wait for connection
 	key_t semkey;
-	int semid;
-	struct sembuf sb;
 
 	sb.sem_num = 0;
 	sb.sem_op = -1;  /* set to allocate resource */
@@ -229,20 +283,20 @@ std::cout << "Waiting for Scheduler to connect" << std::endl;
 	int oUDid;
 	char* oUDBuf;
 
-	if ((key = ftok("shmdemo.c", 'R')) == -1) {
+	if ((oUDKey = ftok("shmdemo.c", 'R')) == -1) {
 		perror("ftok");
 		exit(1);
 	}
 
 	/* connect to (and possibly create) the segment: */
-	if ((shmid = shmget(oUDKey, (sizeof(int) * UNITS_TO_SIM),
+	if ((oUDid = shmget(oUDKey, (sizeof(int) * UNITS_TO_SIM),
 		0644 | IPC_CREAT)) == -1) {
 		perror("shmget");
 		exit(1);
 	}
 
 	/* attach to the segment to get a pointer to it: */
-	oUDBuf = shmat(oUDid, (void*)0, SHM_RDOMLY);
+	oUDBuf = (char *)shmat(oUDid, (void*)0, SHM_RDONLY);
 	if (oUDBuf == (char*)(-1)) {
 		perror("shmat");
 		exit(1);
@@ -253,27 +307,27 @@ std::cout << "Waiting for Scheduler to connect" << std::endl;
 #endif
 	key_t CTUKey;
 	int CTUid;
-	unsigned int* currUnitBuf;
+	unsigned int* CTUBuf;
 
-	if ((key = ftok("shmdemo.c", 'R')) == -1) {
+	if ((CTUKey = ftok("shmdemo.c", 'R')) == -1) {
 		perror("ftok");
 		exit(1);
 	}
 
 	/* connect to (and possibly create) the segment: */
-	if ((shmid = shmget(CTUKey, (sizeof(int) * UNITS_TO_SIM),
+	if ((CTUid = shmget(CTUKey, (sizeof(int) * UNITS_TO_SIM),
 		0644 | IPC_CREAT)) == -1) {
 		perror("shmget");
 		exit(1);
 	}
 
 	/* attach to the segment to get a pointer to it: */
-	currUnitBuf = shmat(CTUid, (void*)0, 0);
-	if (CTUBuf == (char*)(-1)) {
+	CTUBuf = (unsigned int *)shmat(CTUid, (void*)0, 0);
+	if (CTUBuf == (unsigned int*)(-1)) {
 		perror("shmat");
 		exit(1);
 	}
-currUnit = *currUnitBuf;
+currUnit = CTUBuf;
 
 #endif
 
@@ -305,8 +359,8 @@ currUnit = *currUnitBuf;
 
 #else
 
-			struct task_msgbuf msg = { 1, taskStr.c_str() };
-			msgsnd(queueId, &msg, sizeof(*(msg.json)));
+			struct task_msgbuf msg = { 1, const_cast<char*>(taskStr.c_str()) };
+			msgsnd(queueID, &msg, sizeof(*(msg.json)),0);
 
 #endif
 		}
@@ -320,7 +374,7 @@ currUnit = *currUnitBuf;
 		//	unitTimeNS * unitsToSleep));
 		Sleep(unitsToSleep);
 #else
-		usleep(ceil(((double)(unitTimeNs * unitsToSleep)) / 1000));
+		usleep(ceil(((double)(unitTimeNS * unitsToSleep)) / 1000));
 #endif
 	}
 
@@ -341,63 +395,3 @@ currUnit = *currUnitBuf;
 	//after the testbench
 #endif
 }
-
-
-#ifndef TARGET_MS_WINDOWS
-/*
-** initsem() -- more-than-inspired by W. Richard Stevens' UNIX Network
-** Programming 2nd edition, volume 2, lockvsem.c, page 295.
-*/
-int initsem(key_t key, int nsems)  /* key from ftok() */
-{
-	int i;
-	union semun arg;
-	struct semid_ds buf;
-	struct sembuf sb;
-	int semid;
-
-	semid = semget(key, nsems, IPC_CREAT | IPC_EXCL | 0666);
-
-	if (semid >= 0) { /* we got it first */
-		sb.sem_op = 1; sb.sem_flg = 0;
-		arg.val = 1;
-
-		printf("press return\n"); getchar();
-
-		for (sb.sem_num = 0; sb.sem_num < nsems; sb.sem_num++) {
-			/* do a semop() to "free" the semaphores. */
-			/* this sets the sem_otime field, as needed below. */
-			if (semop(semid, &sb, 0) == -1) {
-				int e = errno;
-				semctl(semid, 0, IPC_RMID); /* clean up */
-				errno = e;
-				return -1; /* error, check errno */
-			}
-		}
-
-	}
-	else if (errno == EEXIST) { /* someone else got it first */
-		int ready = 0;
-
-		semid = semget(key, nsems, 0); /* get the id */
-		if (semid < 0) return semid; /* error, check errno */
-
-		/* wait for other process to initialize the semaphore: */
-		arg.buf = &buf;
-		while( !ready) {
-			semctl(semid, nsems - 1, IPC_STAT, arg);
-			if (arg.buf->sem_otime != 0) {
-				ready = 1;
-			}
-			else {
-				sleep(1);
-			}
-		}
-	}
-	else {
-		return semid; /* error, check errno */
-	}
-
-	return semid;
-}
-#endif

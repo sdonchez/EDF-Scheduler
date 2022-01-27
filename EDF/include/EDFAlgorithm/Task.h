@@ -5,10 +5,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifdef USEJSON
-#include "nlohmann\json.hpp" //for input parsing
+#ifdef USE_JSON
+#include "nlohmann/json.hpp" //for input parsing
 #else
-#include "pugixml\pugixml.hpp" //for input parsing
+#include "pugixml/pugixml.hpp" //for input parsing
 #endif
 #include "TimeUnit.h" //Since tasks have time constraints
 #include <string> //for taskName
@@ -26,12 +26,6 @@ public:
 	const TimeUnit* deadline;
 
 	/**
-	 * @brief The frequency with which the task is repeated, or 0 if it is
-	 *		  aperiodic. (measured in TimeUnits)
-	*/
-	const unsigned int period;
-
-	/**
 	 * @brief The total number of TimeUnits required to complete the task.
 	*/
 	const unsigned int unitsToExecute;
@@ -45,6 +39,12 @@ public:
 	 * @brief The unique numeric identifier for the task.
 	*/
 	const unsigned int taskId;
+
+	/**
+	 * @brief The frequency with which the task is repeated, or 0 if it is
+	 *		  aperiodic. (measured in TimeUnits)
+	*/
+	const unsigned int period;
 
 	/**
 	 * @brief How many units of the task have executed thus far.

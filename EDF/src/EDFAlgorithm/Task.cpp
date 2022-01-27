@@ -73,7 +73,7 @@ unsigned int Task::unitsRemaining()
 	return this->unitsToExecute - this->unitsExecuted;
 } //unitsRemaining
 
-#ifdef TARGET_MS_WINDOWS
+
 /**
  * For Windows, there's nothing to actually do with the task, so this function
  * just increments the number of unitsExecuted
@@ -86,11 +86,3 @@ void Task::executeForTimeUnit()
 	this->unitsExecuted++;
 	this->oUD[this->deadline->unitNum] -= 1;
 } //executeForTimeUnit
-
-#else
-void Task::executeForTimeUnit()
-{
-	//TODO: determine implementation for SoC
-}
-
-#endif //TARGET_MS_WINDOWS

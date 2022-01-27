@@ -1,7 +1,7 @@
 #pragma once
 
 #ifndef USE_JSON
-#include "pugixml\pugixml.hpp" //for input parsing
+#include "pugixml/pugixml.hpp" //for input parsing
 #endif
 
 #define NUM_CORES 4
@@ -18,25 +18,25 @@
 
 #define FIFONAME "EDFPipe"
 #define FIFOPATH "./EDFPIPE"
-#define FIFOID "A"
+#define FIFOID 'A'
 
 #define SEMPATH "./EDFSEM"
-#define SEMID "B"
+#define SEMID 'B'
 
 #define OUDPATH "./OUDSHM"
-#define OUDID "C"
+#define OUDID 'C'
 
 #define CTUPATH "./CTUSHM"
-#define CTUID "D"
+#define CTUID 'D'
 
-struct task_msgkbuf {
+struct task_msgbuf {
 	long mtype; /* must be positive*/
 	char* json;
 };
 union semun {
 	int val;
 	struct semid_ds* buf;
-	ushort *array
+	unsigned short *array;
 };
 
 #endif

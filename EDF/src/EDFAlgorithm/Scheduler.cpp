@@ -1,4 +1,4 @@
-#include "scheduler.h"
+#include "Scheduler.h"
 
 std::vector<Core*> cores;
 std::vector<TimeUnit*> timeUnits;
@@ -206,196 +206,6 @@ void serviceCore(Core* core)
 	}
 }
 
-#ifdef TARGET_MS_WINDOWS
-void CALLBACK timerCallback(HWND hwnd, UINT uMsg, UINT timerId, DWORD dwTime)
-{
-#ifdef DEBUG_TIMER
-	std::cout << "Timer Callback called for TimeUnit " << 
-		currentUnit->unitNum << std::endl;
-#endif // DEBUG_TIMER
-
-	doServiceCores = true;
-	doStartUnit = true;
-}
-#else
-int ScuTimerConfig(XScuGic *IntcInstancePtr, XScuTimer * TimerInstancePtr,
-			u16 TimerDeviceId, u16 TimerIntrId)
-{
-	int Status;
-	int LastTimerExpired = 0;
-	XScuTimer_Config *ConfigPtr;
-
-	/*
-	 * Initialize the Scu Private Timer driver.
-	 */
-	ConfigPtr = XScuTimer_LookupConfig(TimerDeviceId);
-
-	/*
-	 * This is where the virtual address would be used, this example
-	 * uses physical address.
-	 */
-	Status = XScuTimer_CfgInitialize(TimerInstancePtr, ConfigPtr,
-					ConfigPtr->BaseAddr);
-	if (Status != XST_SUCCESS) {
-		return XST_FAILURE;
-	}
-
-	/*
-	 * Perform a self-test to ensure that the hardware was built correctly.
-	 */
-	Status = XScuTimer_SelfTest(TimerInstancePtr);
-	if (Status != XST_SUCCESS) {
-		return XST_FAILURE;
-	}
-
-	/*
-	 * Connect the device to interrupt subsystem so that interrupts
-	 * can occur.
-	 */
-	Status = TimerSetupIntrSystem(IntcInstancePtr,
-					TimerInstancePtr, TimerIntrId);
-	if (Status != XST_SUCCESS) {
-		return XST_FAILURE;
-	}
-	/*
-		 * Enable Auto reload mode.
-		 */
-		XScuTimer_EnableAutoReload(TimerInstancePtr);
-
-		/*
-		 * Load the timer counter register.
-		 */
-		XScuTimer_LoadTimer(TimerInstancePtr, CLOCKS_PER_UNIT);
-}
-
-/*****************************************************************************/
-/**
-*
-* This function sets up the interrupt system such that interrupts can occur
-* for the device.
-*
-* @param	IntcInstancePtr is a pointer to the instance of XScuGic driver.
-* @param	TimerInstancePtr is a pointer to the instance of XScuTimer
-*		driver.
-* @param	TimerIntrId is the Interrupt Id of the XScuTimer device.
-*
-* @return	XST_SUCCESS if successful, otherwise XST_FAILURE.
-*
-* @note		None.
-*
-******************************************************************************/
-static int TimerSetupIntrSystem(XScuGic *IntcInstancePtr,
-			      XScuTimer *TimerInstancePtr, u16 TimerIntrId)
-{
-	int Status;
-
-#ifndef TESTAPP_GEN
-	XScuGic_Config *IntcConfig;
-
-	/*
-	 * Initialize the interrupt controller driver so that it is ready to
-	 * use.
-	 */
-	IntcConfig = XScuGic_LookupConfig(INTC_DEVICE_ID);
-	if (NULL == IntcConfig) {
-		return XST_FAILURE;
-	}
-
-	Status = XScuGic_CfgInitialize(IntcInstancePtr, IntcConfig,
-					IntcConfig->CpuBaseAddress);
-	if (Status != XST_SUCCESS) {
-		return XST_FAILURE;
-	}
-
-
-	Xil_ExceptionInit();
-
-
-
-	/*
-	 * Connect the interrupt controller interrupt handler to the hardware
-	 * interrupt handling logic in the processor.
-	 */
-	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_IRQ_INT,
-				(Xil_ExceptionHandler)XScuGic_InterruptHandler,
-				IntcInstancePtr);
-#endif
-
-	/*
-	 * Connect the device driver handler that will be called when an
-	 * interrupt for the device occurs, the handler defined above performs
-	 * the specific interrupt processing for the device.
-	 */
-	Status = XScuGic_Connect(IntcInstancePtr, TimerIntrId,
-				(Xil_ExceptionHandler)TimerIntrHandler,
-				(void *)TimerInstancePtr);
-	if (Status != XST_SUCCESS) {
-		return Status;
-	}
-
-	/*
-	 * Enable the interrupt for the device.
-	 */
-	XScuGic_Enable(IntcInstancePtr, TimerIntrId);
-
-	/*
-	 * Enable the timer interrupts for timer mode.
-	 */
-	XScuTimer_EnableInterrupt(TimerInstancePtr);
-
-#ifndef TESTAPP_GEN
-	/*
-	 * Enable interrupts in the Processor.
-	 */
-	Xil_ExceptionEnable();
-#endif
-
-	return XST_SUCCESS;
-}
-
-/*****************************************************************************/
-/**
-*
-* This function is the Interrupt handler for the Timer interrupt of the
-* Timer device. It is called on the expiration of the timer counter in
-* interrupt context.
-*
-* @param	CallBackRef is a pointer to the callback function.
-*
-* @return	None.
-*
-* @note		None.
-*
-******************************************************************************/
-static void TimerIntrHandler(void *CallBackRef)
-{
-	doStartUnit = true;
-	doServiceCores = true;
-}
-
-/*****************************************************************************/
-/**
-*
-* This function disables the interrupts that occur for the device.
-*
-* @param	IntcInstancePtr is the pointer to the instance of XScuGic
-*		driver.
-* @param	TimerIntrId is the Interrupt Id for the device.
-*
-* @return	None.
-*
-* @note		None.
-*
-******************************************************************************/
-static void TimerDisableIntrSystem(XScuGic *IntcInstancePtr, u16 TimerIntrId)
-{
-	/*
-	 * Disconnect and disable the interrupt for the Timer.
-	 */
-	XScuGic_Disconnect(IntcInstancePtr, TimerIntrId);
-}
-#endif
-
 void coreServicerThread()
 {
 #ifdef DEBUG_CORES
@@ -416,33 +226,28 @@ void coreServicerThread()
 	}
 }
 
+#ifdef TARGET_MS_WINDOWS
 void timerManagerThread(LPCTSTR* oUDBuf, LPCTSTR* currUnitBuf)
 {
 #ifdef DEBUG_TIMER
 	std::cout << "Timer Manager thread spawned." << std::endl;
 #endif // DEBUG_TIMER
-#ifdef TARGET_ZED
-	ScuTimerIntrExample(&IntcInstance, &TimerInstance,
-					TIMER_DEVICE_ID, TIMER_IRPT_INTR);
-	XScuTimer_Start(TimerInstancePtr);
-#else
+
 	nanoseconds duration{ NS_PER_TICK * CLOCKS_PER_UNIT };
-#endif
+
 
 	while (currentUnit->unitNum < timeUnits.back()->unitNum)
 	{
 #ifdef DEBUG_TIMER
 		std::cout << "Starting new TimeUnit." << std::endl;
 #endif
-#ifdef TARGET_MS_WINDOWS
 		std::this_thread::sleep_for(duration);
 		doStartUnit = true;
 		doServiceCores = true;
 
-#endif
 		currentUnit = findTimeUnit(currentUnit->unitNum + 1);
 		doStartUnit = false;
-#ifdef TARGET_MS_WINDOWS
+
 #ifdef DEBUG_IPC
 		std::cout << "updating shared oUD Map" << std::endl;
 #endif
@@ -454,7 +259,6 @@ void timerManagerThread(LPCTSTR* oUDBuf, LPCTSTR* currUnitBuf)
 		CopyMemory((PVOID)*currUnitBuf, &(currentUnit->unitNum),
 			sizeof(unsigned int));
 
-#else
 #ifdef DEBUG_IPC
 		std::cout << "updating shared oUD Map" << std::endl;
 #endif
@@ -465,20 +269,22 @@ void timerManagerThread(LPCTSTR* oUDBuf, LPCTSTR* currUnitBuf)
 #endif
 		memcpy(currUnitBuf, &(currentUnit->unitNum),
 			sizeof(unsigned int));
-
-#endif
-		//TODO: use HW timer on target
 	}
-#ifdef TARGET_ZED
-	TimerDisableIntrSystem(IntcInstancePtr, TimerIntrId);
-#endif
 	return;
 }
+#else
+void timerManagerThread(void* oUDBuf, void* currUnitBuf)
+{
+
+}
+#endif
 
 void taskParserThread(
 #ifdef TARGET_MS_WINDOWS
 	HANDLE* hPipe,
 	DWORD dwRead
+#else
+	int queueID
 #endif
 )
 {
@@ -486,8 +292,10 @@ void taskParserThread(
 	std::cout << "Task Parser thread spawned" << std::endl;
 #endif
 	std::string taskStr = "";
-	BOOL result;
+#ifdef TARGET_MS_WINDOWS
+	bool result;
 	char pipeBuf[BUFSIZ * 10];
+#endif
 	while (true)
 	{
 #ifdef DEBUG_TASKS
@@ -506,8 +314,8 @@ void taskParserThread(
 		taskStr = pipeBuf;
 #else
 		task_msgbuf msgbuf;
-		msgrecv(queueID, &msgbuf, sizeof(struct task_msgbuf), 0, 0);
-		taskStr = msgbuf.json
+		msgrcv(queueID, &msgbuf, sizeof(struct task_msgbuf), 0, 0);
+		taskStr = msgbuf.json;
 #endif
 #ifdef DEBUG_TASKS
 		std::cout << "Input Received" << std::endl;
@@ -539,7 +347,65 @@ void taskParserThread(
 	}
 }
 
-int main(unsigned int argc, char* argv[])
+#ifndef TARGET_MS_WINDOWS
+/*
+** initsem() -- more-than-inspired by W. Richard Stevens' UNIX Network
+** Programming 2nd edition, volume 2, lockvsem.c, page 295.
+*/
+int initsem(key_t key, int nsems)  /* key from ftok() */
+{
+	union semun arg;
+	struct semid_ds buf;
+	struct sembuf sb;
+	int semid;
+
+	semid = semget(key, nsems, IPC_CREAT | IPC_EXCL | 0666);
+
+	if (semid >= 0) { /* we got it first */
+		sb.sem_op = -1; sb.sem_flg = 0;
+		arg.val = 1;
+
+		printf("press return\n"); getchar();
+
+		for (sb.sem_num = 0; sb.sem_num < nsems; sb.sem_num++) {
+			/* do a semop() to indicate 1 scheduler is available. */
+			/* this sets the sem_otime field, as needed below. */
+			if (semop(semid, &sb, 1) == -1) {
+				int e = errno;
+				semctl(semid, 0, IPC_RMID); /* clean up */
+				errno = e;
+				return -1; /* error, check errno */
+			}
+		}
+
+	}
+	else if (errno == EEXIST) { /* someone else got it first */
+		int ready = 0;
+
+		semid = semget(key, nsems, 0); /* get the id */
+		if (semid < 0) return semid; /* error, check errno */
+
+		/* wait for other process to initialize the semaphore: */
+		arg.buf = &buf;
+		while (!ready) {
+			semctl(semid, nsems - 1, IPC_STAT, arg);
+			if (arg.buf->sem_otime != 0) {
+				ready = 1;
+			}
+			else {
+				sleep(1);
+			}
+		}
+	}
+	else {
+		return semid; /* error, check errno */
+	}
+
+	return semid;
+}
+#endif
+
+int main(int argc, char* argv[])
 {
 #ifdef _DEBUG
 	std::cout << "Beginning Initialization" << std::endl;
@@ -684,20 +550,20 @@ int main(unsigned int argc, char* argv[])
 	int oUDid;
 	char* oUDBuf;
 
-	if ((key = ftok("shmdemo.c", 'R')) == -1) {
+	if ((oUDKey = ftok("shmdemo.c", 'R')) == -1) {
 		perror("ftok");
 		exit(1);
 	}
 
 	/* connect to (and possibly create) the segment: */
-	if ((shmid = shmget(oUDKey, (sizeof(int) * UNITS_TO_SIM), 
+	if ((oUDid = shmget(oUDKey, (sizeof(int) * UNITS_TO_SIM),
 						0644 | IPC_CREAT)) == -1) {
 		perror("shmget");
 		exit(1);
 	}
 
 	/* attach to the segment to get a pointer to it: */
-	oUDBuf = shmat(oUDid, (void*)0, 0);
+	oUDBuf = (char *)shmat(oUDid, (void*)0, 0);
 	if (oUDBuf == (char*)(-1)) {
 		perror("shmat");
 		exit(1);
@@ -708,45 +574,41 @@ int main(unsigned int argc, char* argv[])
 #endif
 	key_t CTUKey;
 	int CTUid;
-	char* currUnitBufBuf;
+	char* CTUBuf;
 
-	if ((key = ftok("shmdemo.c", 'R')) == -1) {
+	if ((CTUKey = ftok("shmdemo.c", 'R')) == -1) {
 		perror("ftok");
 		exit(1);
 	}
 
 	/* connect to (and possibly create) the segment: */
-	if ((shmid = shmget(CTUKey, (sizeof(int) * UNITS_TO_SIM),
+	if ((CTUid = shmget(CTUKey, (sizeof(int) * UNITS_TO_SIM),
 		0644 | IPC_CREAT)) == -1) {
 		perror("shmget");
 		exit(1);
 	}
 
 	/* attach to the segment to get a pointer to it: */
-	currUnitBuf = shmat(CTUid, (void*)0, 0);
+	CTUBuf = (char *)shmat(CTUid, (void*)0, 0);
 	if (CTUBuf == (char*)(-1)) {
 		perror("shmat");
 		exit(1);
 	}
 
 #ifdef _DEBUG
-	std::cout << "Setting up Semaphore to wait for generator".
+	std::cout << "Setting up Semaphore to wait for generator." << std::endl;
 #endif
 
-		union semun arg;
-	struct semid_ds buf;
 	struct sembuf sb;
 	int semid;
 
 	key_t semkey;
-	int semid;
-	struct sembuf sb;
 
 	sb.sem_num = 0;
-	sb.sem_op = -1;  /* set to allocate resource */
+	sb.sem_op = 0;  /* set to allocate resource */
 	sb.sem_flg = SEM_UNDO;
 
-	if ((semkey = ftok(SEMPATH, SEMID)) == -1) {
+	if ((semkey = ftok(SEMPATH, (int) SEMID)) == -1) {
 		perror("ftok");
 		exit(1);
 	}
@@ -761,7 +623,7 @@ int main(unsigned int argc, char* argv[])
 	std::cout << "Setting up SysV Message Queue for JSON" << std::endl;
 #endif
 
-	key_t queueKey = ftok(FIFOPATH, FIFOID);
+	key_t queueKey = ftok(FIFOPATH, (int)FIFOID);
 	int queueID = msgget(queueKey, 0666 | IPC_CREAT);
 
 
@@ -782,9 +644,14 @@ int main(unsigned int argc, char* argv[])
 #ifdef _DEBUG
 	std::cout << "Spawning Threads" << std::endl;
 #endif
+
+#ifdef TARGET_MS_WINDOWS
 	std::thread parserThread(taskParserThread, &hPipe, dwRead);
+#else
+	std::thread parserThread(taskParserThread, queueID);
+#endif
 	std::thread servicerThread(coreServicerThread);
-	std::thread timerThread(timerManagerThread, &oUDBuf, &currUnitBuf);
+	std::thread timerThread(timerManagerThread, &oUDBuf, &CTUBuf);
 
 #ifdef _DEBUG
 	std::cout << "Waiting for timer to end" << std::endl;
@@ -820,61 +687,4 @@ int main(unsigned int argc, char* argv[])
 	exit(0);
 }
 
-#ifndef TARGET_MS_WINDOWS
-/*
-** initsem() -- more-than-inspired by W. Richard Stevens' UNIX Network
-** Programming 2nd edition, volume 2, lockvsem.c, page 295.
-*/
-int initsem(key_t key, int nsems)  /* key from ftok() */
-{
-	int i;
-	union semun arg;
-	struct semid_ds buf;
-	struct sembuf sb;
-	int semid;
 
-	semid = semget(key, nsems, IPC_CREAT | IPC_EXCL | 0666);
-
-	if (semid >= 0) { /* we got it first */
-		sb.sem_op = 1; sb.sem_flg = 0;
-		arg.val = 1;
-
-		printf("press return\n"); getchar();
-
-		for (sb.sem_num = 0; sb.sem_num < nsems; sb.sem_num++) {
-			/* do a semop() to indicate 1 scheduler is available. */
-			/* this sets the sem_otime field, as needed below. */
-			if (semop(semid, &sb, 1) == -1) {
-				int e = errno;
-				semctl(semid, 0, IPC_RMID); /* clean up */
-				errno = e;
-				return -1; /* error, check errno */
-			}
-		}
-
-	}
-	else if (errno == EEXIST) { /* someone else got it first */
-		int ready = 0;
-
-		semid = semget(key, nsems, 0); /* get the id */
-		if (semid < 0) return semid; /* error, check errno */
-
-		/* wait for other process to initialize the semaphore: */
-		arg.buf = &buf;
-		while (!ready) {
-			semctl(semid, nsems - 1, IPC_STAT, arg);
-			if (arg.buf->sem_otime != 0) {
-				ready = 1;
-			}
-			else {
-				sleep(1);
-			}
-		}
-	}
-	else {
-		return semid; /* error, check errno */
-	}
-
-	return semid;
-}
-#endif

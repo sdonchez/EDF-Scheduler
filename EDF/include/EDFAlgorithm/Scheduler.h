@@ -9,7 +9,7 @@
 #ifdef USEJSON
 #include "nlohmann\json.hpp" //for input parsing
 #else
-#include "pugixml\pugixml.hpp" //for input parsing
+#include "pugixml/pugixml.hpp" //for input parsing
 #endif
 
 #include <vector> //for processor and task arrays
@@ -27,19 +27,13 @@
 #include <conio.h>
 
 #else
-#include "xparameters.h"
-#include "xscutimer.h"
-#include "xscugic.h"
-#include "xil_exception.h"
-#include "xil_printf.h"
 #include <sys/msg.h>
 #include <sys/sem.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <unistd.h>
 
-XScuTimer TimerInstance;	/* Cortex A9 Scu Private Timer Instance */
-XScuGic IntcInstance;		/* Interrupt Controller Instance */
 #endif
 
 #ifdef DEBUG_ALL
@@ -120,7 +114,11 @@ void coreServicerThread();
  * @brief Restarts the TimeUnit timer when the callback sets the doStartUnit
  *		  flag, provided the last TimeUnit hasn't already executed.
 */
+#ifdef TARGET_MS_WINDOWS
 void timerManagerThread(LPCTSTR* oUDBuf, LPCTSTR* currUnitBuf);
+#else
+void timerManagerThread(void* oUDBuf, void* currUnitBuf);
+#endif
 
 /**
  * @brief Loop that waits for a line on standard input, then parses it to create
@@ -130,7 +128,9 @@ void taskParserThread(
 #ifdef TARGET_MS_WINDOWS
 	HANDLE* hPipe,
 	DWORD dwRead
+#else
+	int queueID
 #endif
 );
 
-int main(unsigned int argc, char* argv[]);
+int main(int argc, char* argv[]);
