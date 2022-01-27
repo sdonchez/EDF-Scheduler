@@ -56,6 +56,12 @@ RUN apt-get update &&  DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
   xinetd \
   tftpd \
   tftp \
+  libsm6 \
+  libxi6 \
+  libxrandr2 \
+  libfreetype6 \
+  libfontconfig \
+  libswt-gtk-4-java \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
@@ -65,8 +71,9 @@ RUN dpkg --add-architecture i386 &&  apt-get update &&  \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-ARG PETA_VERSION
 ARG PETA_RUN_FILE
+ARG VIVADO_TAR_FILE
+ARG VIVADO_VERSION
 
 RUN locale-gen en_US.UTF-8 && update-locale
 
@@ -75,23 +82,32 @@ RUN adduser --disabled-password --gecos '' vivado && \
   usermod -aG sudo vivado && \
   echo "vivado ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-COPY .devcontainer/accept-eula.sh /
-COPY .devcontainer/${PETA_RUN_FILE} /
+COPY .devcontainer/accept-eula.sh /tmp/
+COPY .devcontainer/${VIVADO_TAR_FILE}.tar.gz /
+COPY .devcontainer/install_config_vitis.txt /
+COPY .devcontainer/install_config_petalinux.txt /
 
 #config tftp server
 COPY .devcontainer/tftp.in /etc/xinetd.d/tftp
 RUN mkdir /tftpboot
 RUN chmod ugo+rw /tftpboot/
-RUN service xinetd restart
+RUN service xinetd stop
+RUN service xinetd start
 
 # run the install
-RUN chmod a+rx /${PETA_RUN_FILE}
-RUN chmod a+rx /accept-eula.sh
-RUN mkdir -p /opt/Xilinx
-RUN chmod 777 /tmp /opt/Xilinx
+
+RUN echo "Extracting Vivado tar file" 
+RUN tar xzf ${VIVADO_TAR_FILE}.tar.gz 
+RUN rm ${VIVADO_TAR_FILE}.tar.gz
+RUN ${VIVADO_TAR_FILE}/xsetup --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA --batch Install --config install_config_vitis.txt 
+RUN ${VIVADO_TAR_FILE}/xsetup --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA --batch Install --config install_config_petalinux.txt
+RUN mkdir /tools/Xilinx/PetaLinux/${VIVADO_VERSION}/install/
+RUN chmod -R 777 /tools/Xilinx/PetaLinux/${VIVADO_VERSION}/
+RUN chmod -R 777 /tmp/
 RUN cd /tmp && \
-  sudo -u vivado -i /accept-eula.sh /${PETA_RUN_FILE} /opt/Xilinx/petalinux
-RUN rm -f /${PETA_RUN_FILE} /accept-eula.sh
+  sudo -u vivado -i /tmp/accept-eula.sh /tools/Xilinx/PetaLinux/${VIVADO_VERSION}/bin/${PETA_RUN_FILE} /tools/Xilinx/PetaLinux/${VIVADO_VERSION}/install/
+RUN rm -f /tools/Xilinx/PetaLinux/${VIVADO_VERSION}/bin/${PETA_RUN_FILE} /tmp/accept-eula.sh
+RUN rm -rf ${VIVADO_TAR_FILE}*
 
 # make /bin/sh symlink to bash instead of dash:
 RUN echo "dash dash/sh boolean false" | debconf-set-selections
@@ -100,8 +116,12 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg-reconfigure dash
 USER vivado
 ENV HOME /home/vivado
 ENV LANG en_US.UTF-8
-RUN mkdir /home/vivado/project
-WORKDIR /home/vivado/project
 
 #add vivado tools to path
-RUN echo "source /opt/Xilinx/petalinux/settings.sh" >> /home/vivado/.bashrc
+RUN echo "service xinetd start" >> /home/vivado/.bashrc
+RUN echo "source /tools/Xilinx/Vitis/2020.2/settings64.sh" >> /home/vivado/.bashrc
+RUN echo "source /tools/Xilinx/PetaLinux/2020.2/install/settings.sh" >> /home/vivado/.bashrc
+
+#setup vivado license
+RUN mkdir /home/vivado/.Xilinx
+COPY .devcontainer/Xilinx.lic /home/vivado/.Xilinx/
