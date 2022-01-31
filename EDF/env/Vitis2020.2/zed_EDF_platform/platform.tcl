@@ -151,3 +151,25 @@ platform generate
 platform clean
 platform clean
 platform generate
+platform active {zed_EDF_platform}
+platform config -fsbl-elf {/workspaces/Research-I/sd/boot/zynq_fsbl.elf}
+platform write
+domain config -boot {/workspaces/Research-I/sd/boot}
+platform write
+domain config -bif {/workspaces/Research-I/EDF/env/Vitis2020.2/zed_EDF_system/Debug/system.bif}
+platform write
+domain config -image {/workspaces/Research-I/sd/boot}
+platform write
+domain config -rootfs {/workspaces/Research-I/sd/fs/rootfs.ext4}
+platform write
+platform generate -domains 
+platform active {zed_EDF_platform}
+platform generate -domains 
+platform generate -domains 
+platform generate -domains 
+platform generate -domains 
+platform generate -domains 
+platform generate -domains 
+platform generate -domains 
+platform generate -domains 
+platform generate -domains 

@@ -51,15 +51,26 @@ int initsem(key_t key, int nsems)  /* key from ftok() */
 	semid = semget(key, nsems, IPC_CREAT | IPC_EXCL | 0666);
 
 	if (semid >= 0) { /* we got it first */
-		sb.sem_op = 1; sb.sem_flg = 0;
+		sb.sem_op =1;
+		sb.sem_flg = 0;
 		arg.val = 1;
-
-		printf("press return\n"); getchar();
 
 		for (sb.sem_num = 0; sb.sem_num < nsems; sb.sem_num++) {
 			/* do a semop() to "free" the semaphores. */
 			/* this sets the sem_otime field, as needed below. */
-			if (semop(semid, &sb, 0) == -1) {
+			if (semop(semid, &sb, 1) == -1) {
+				int e = errno;
+				semctl(semid, 0, IPC_RMID); /* clean up */
+				errno = e;
+				return -1; /* error, check errno */
+			}
+		}
+
+		sb.sem_op =-1;
+		for (sb.sem_num = 0; sb.sem_num < nsems; sb.sem_num++) {
+			/* do a semop() to "alocate" the semaphores we just "freed". */
+			/* this sets the sem_otime field, as needed below. */
+			if (semop(semid, &sb, 1) == -1) {
 				int e = errno;
 				semctl(semid, 0, IPC_RMID); /* clean up */
 				errno = e;
@@ -230,6 +241,9 @@ int main(int argc, char* argv[])
 	std::cout << "Setting up SysV Message Queue for JSON" << std::endl;
 #endif
 
+
+	FILE *fifopathFile = fopen (FIFOPATH, "ab+");
+	fclose(fifopathFile);
 	struct sembuf sb;
 	int semid;
 	key_t queueKey = ftok(FIFOPATH, FIFOID);
@@ -240,16 +254,15 @@ int main(int argc, char* argv[])
 	std::cout << "Setting up Semaphore to wait for scheduler" << std::endl;
 #endif
 
-#ifdef _DEBUG
-	std::cout << "Waiting for Scheduler to connect" << std::endl;
-#endif
-
 //wait for connection
 	key_t semkey;
 
 	sb.sem_num = 0;
 	sb.sem_op = -1;  /* set to allocate resource */
-	sb.sem_flg = SEM_UNDO;
+	sb.sem_flg = 0;
+
+	FILE *sempathFile = fopen (SEMPATH, "ab+");
+	fclose(sempathFile);
 
 	if ((semkey = ftok(SEMPATH, SEMID)) == -1) {
 		perror("ftok");
@@ -261,9 +274,11 @@ int main(int argc, char* argv[])
 		perror("initsem");
 		exit(1);
 	}
-
+#ifdef _DEBUG
+	std::cout << "Waiting for Scheduler to connect" << std::endl;
+#endif
 	//attempt to request one scheduler
-	if (semop(semid, &sb, -1) == -1) {
+	if (semop(semid, &sb, 1) == -1) {
 		int e = errno;
 		semctl(semid, 0, IPC_RMID); /* clean up */
 		errno = e;
@@ -281,9 +296,11 @@ int main(int argc, char* argv[])
 
  	key_t oUDKey;
 	int oUDid;
-	char* oUDBuf;
+	int* oUDBuf;
 
-	if ((oUDKey = ftok("shmdemo.c", 'R')) == -1) {
+	FILE *oudpathFile = fopen (OUDPATH, "ab+");
+	fclose(oudpathFile);
+	if ((oUDKey = ftok(OUDPATH, 'R')) == -1) {
 		perror("ftok");
 		exit(1);
 	}
@@ -296,8 +313,8 @@ int main(int argc, char* argv[])
 	}
 
 	/* attach to the segment to get a pointer to it: */
-	oUDBuf = (char *)shmat(oUDid, (void*)0, SHM_RDONLY);
-	if (oUDBuf == (char*)(-1)) {
+	oUDBuf = (int *)shmat(oUDid, (void*)0, SHM_RDONLY);
+	if (*oUDBuf == -1) {
 		perror("shmat");
 		exit(1);
 	}
@@ -309,7 +326,10 @@ int main(int argc, char* argv[])
 	int CTUid;
 	unsigned int* CTUBuf;
 
-	if ((CTUKey = ftok("shmdemo.c", 'R')) == -1) {
+	FILE *ctupathFile = fopen (CTUPATH, "ab+");
+	fclose(ctupathFile);
+
+	if ((CTUKey = ftok(CTUPATH, 'R')) == -1) {
 		perror("ftok");
 		exit(1);
 	}
@@ -328,6 +348,7 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 currUnit = CTUBuf;
+oUD = oUDBuf;
 
 #endif
 
@@ -339,11 +360,12 @@ currUnit = CTUBuf;
 	{
 #ifdef DEBUG_UNITS
 		std::cout << "Current Total Units: " << totalUnits << " Target: "
-			<< maxUnits << "Current Unit Number: " << *currUnit << std::endl;
+			<< maxUnits << " Current Unit Number: " << *CTUBuf<< std::endl;
 #endif
 		numTasks = (int)round(5 * numTasksDistribution(generator));
 		for (unsigned int taskNo = 0; taskNo < numTasks; taskNo++)
 		{
+			std::cout << "Generating Task #" << taskNo << std::endl;
 			GeneratedTask task(oUD, currUnit, TARGET_UTILIZATION);
 			totalUnits += task.unitsToExecute;
 #ifdef USE_JSON
@@ -351,16 +373,17 @@ currUnit = CTUBuf;
 #else
 			std::string taskStr = task.toXMLSerialized();
 #endif
-			std::cout << taskStr << std::endl;
 
 #ifdef TARGET_MS_WINDOWS
 			WriteFile(hPipe, taskStr.c_str(), (DWORD) taskStr.length(), 
 				&dwWritten, NULL);
 
 #else
-
-			struct task_msgbuf msg = { 1, const_cast<char*>(taskStr.c_str()) };
-			msgsnd(queueID, &msg, sizeof(*(msg.json)),0);
+			struct task_msgbuf msg;
+			msg.mtype = 1;
+			strncpy (msg.json, taskStr.c_str(), 1023);
+			std::cout << msg.json << std::endl;
+			msgsnd(queueID, &msg, sizeof(msg.json),0);
 
 #endif
 		}
@@ -387,10 +410,10 @@ currUnit = CTUBuf;
 	CloseHandle(currUnitMap);
 
 #else
-	msgctl(queueID, IPC_RMID, NULL);
-	semctl(semid, 0, IPC_RMID);
-	int shmdt(void* oUDBuf);
-	int shmdt(void* currUnitBuf);
+//	msgctl(queueID, IPC_RMID, NULL);
+//	semctl(semid, 0, IPC_RMID);
+//	int shmdt(void* oUDBuf);
+//	int shmdt(void* currUnitBuf);
 	//Don't actually delete shared mem since the scheduler generally finishes
 	//after the testbench
 #endif

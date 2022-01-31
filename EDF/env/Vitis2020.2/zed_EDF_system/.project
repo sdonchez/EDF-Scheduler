@@ -6,6 +6,8 @@
 		<project>zed_EDF</project>
 		<project>hello_world</project>
 		<project>zed_EDF_testbench</project>
+		<project>SemaphoreProviderTest</project>
+		<project>SemaphoreConsumerTest</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

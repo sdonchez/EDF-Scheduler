@@ -273,9 +273,39 @@ void timerManagerThread(LPCTSTR* oUDBuf, LPCTSTR* currUnitBuf)
 	return;
 }
 #else
-void timerManagerThread(void* oUDBuf, void* currUnitBuf)
+void timerManagerThread(int* oUDBuf, int* currUnitBuf)
 {
+#ifdef DEBUG_TIMER
+	std::cout << "Timer Manager thread spawned." << std::endl;
+#endif // DEBUG_TIMER
 
+	nanoseconds duration{ NS_PER_TICK * CLOCKS_PER_UNIT };
+
+
+	while (currentUnit->unitNum < timeUnits.back()->unitNum)
+	{
+#ifdef DEBUG_TIMER
+		std::cout << "Starting new TimeUnit." << std::endl;
+#endif
+		std::this_thread::sleep_for(duration);
+		doStartUnit = true;
+		doServiceCores = true;
+
+		currentUnit = findTimeUnit(currentUnit->unitNum + 1);
+		doStartUnit = false;
+
+#ifdef DEBUG_IPC
+		std::cout << "updating shared oUD Map" << std::endl;
+#endif
+		memcpy(oUDBuf, outstandingUnitsDue.data(),
+			UNITS_TO_SIM);
+#ifdef DEBUG_IPC
+		std::cout << "updating shared currUnit Map - unit " << currentUnit->unitNum << std::endl;
+#endif
+		memcpy(currUnitBuf, &(currentUnit->unitNum),
+			sizeof(unsigned int));
+	}
+	return;
 }
 #endif
 
@@ -314,11 +344,12 @@ void taskParserThread(
 		taskStr = pipeBuf;
 #else
 		task_msgbuf msgbuf;
-		msgrcv(queueID, &msgbuf, sizeof(struct task_msgbuf), 0, 0);
+		msgrcv(queueID, &msgbuf, sizeof(msgbuf.json), 0, 0);
 		taskStr = msgbuf.json;
 #endif
 #ifdef DEBUG_TASKS
-		std::cout << "Input Received" << std::endl;
+		std::cout << "Input Received:";
+		printf("%s;%s\n",taskStr.c_str(),msgbuf.json);
 #endif
 		size_t pos = 0;
 		std::string token;
@@ -362,11 +393,10 @@ int initsem(key_t key, int nsems)  /* key from ftok() */
 	semid = semget(key, nsems, IPC_CREAT | IPC_EXCL | 0666);
 
 	if (semid >= 0) { /* we got it first */
-		sb.sem_op = -1; sb.sem_flg = 0;
+		sb.sem_op = 1; sb.sem_flg = 0;
 		arg.val = 1;
 
-		printf("press return\n"); getchar();
-
+		std::cout << "start semop init" << std::endl;
 		for (sb.sem_num = 0; sb.sem_num < nsems; sb.sem_num++) {
 			/* do a semop() to indicate 1 scheduler is available. */
 			/* this sets the sem_otime field, as needed below. */
@@ -376,6 +406,7 @@ int initsem(key_t key, int nsems)  /* key from ftok() */
 				errno = e;
 				return -1; /* error, check errno */
 			}
+			std::cout << "Done semop init" << std::endl;
 		}
 
 	}
@@ -396,11 +427,17 @@ int initsem(key_t key, int nsems)  /* key from ftok() */
 				sleep(1);
 			}
 		}
+
+		if (!ready) {
+			errno = ETIME;
+			return -1;
+		}
 	}
 	else {
+		std::cout << "reterr 1" << std::endl;
 		return semid; /* error, check errno */
 	}
-
+	std::cout << "good ret" << std::endl;
 	return semid;
 }
 #endif
@@ -548,9 +585,11 @@ int main(int argc, char* argv[])
  
 	key_t oUDKey;
 	int oUDid;
-	char* oUDBuf;
+	int* oUDBuf;
 
-	if ((oUDKey = ftok("shmdemo.c", 'R')) == -1) {
+	FILE *oudpathFile = fopen (OUDPATH, "ab+");
+	fclose(oudpathFile);
+	if ((oUDKey = ftok(OUDPATH, 'R')) == -1) {
 		perror("ftok");
 		exit(1);
 	}
@@ -563,8 +602,8 @@ int main(int argc, char* argv[])
 	}
 
 	/* attach to the segment to get a pointer to it: */
-	oUDBuf = (char *)shmat(oUDid, (void*)0, 0);
-	if (oUDBuf == (char*)(-1)) {
+	oUDBuf = (int *)shmat(oUDid, (void*)0, 0);
+	if (*oUDBuf == -1) {
 		perror("shmat");
 		exit(1);
 	}
@@ -574,9 +613,12 @@ int main(int argc, char* argv[])
 #endif
 	key_t CTUKey;
 	int CTUid;
-	char* CTUBuf;
+	int* CTUBuf;
 
-	if ((CTUKey = ftok("shmdemo.c", 'R')) == -1) {
+	FILE *ctupathFile = fopen (CTUPATH, "ab+");
+	fclose(ctupathFile);
+
+	if ((CTUKey = ftok(CTUPATH, 'R')) == -1) {
 		perror("ftok");
 		exit(1);
 	}
@@ -589,8 +631,8 @@ int main(int argc, char* argv[])
 	}
 
 	/* attach to the segment to get a pointer to it: */
-	CTUBuf = (char *)shmat(CTUid, (void*)0, 0);
-	if (CTUBuf == (char*)(-1)) {
+	CTUBuf = (int *)shmat(CTUid, (void*)0, 0);
+	if (*CTUBuf == -1) {
 		perror("shmat");
 		exit(1);
 	}
@@ -604,25 +646,41 @@ int main(int argc, char* argv[])
 
 	key_t semkey;
 
-	sb.sem_num = 0;
-	sb.sem_op = 0;  /* set to allocate resource */
-	sb.sem_flg = SEM_UNDO;
+	FILE *sempathFile = fopen (SEMPATH, "ab+");
+	fclose(sempathFile);
 
 	if ((semkey = ftok(SEMPATH, (int) SEMID)) == -1) {
 		perror("ftok");
 		exit(1);
 	}
 
-	/* grab the semaphore set created by seminit.c: */
+	/* grab the semaphore set created by seminit: */
 	if ((semid = initsem(semkey, 1)) == -1) {
 		perror("initsem");
 		exit(1);
 	}
 
+//#ifdef _DEBUG
+//	std::cout << "Allocating one scheduler to semaphore." << std::endl;
+//#endif
+//	sb.sem_num = 0;
+//	sb.sem_op = 1;  /* set to provide resource */
+//	sb.sem_flg = 0;
+//
+//	if (semop(semid, &sb, 1) == -1) {
+//		int e = errno;
+//		semctl(semid, 0, IPC_RMID); /* clean up */
+//		errno = e;
+//		std::cout << "err here:"  << errno<< std::endl;
+//		return -1; /* error, check errno */
+//	}
+
 #ifdef _DEBUG
 	std::cout << "Setting up SysV Message Queue for JSON" << std::endl;
 #endif
 
+	FILE *fifopathFile = fopen (FIFOPATH, "ab+");
+	fclose(fifopathFile);
 	key_t queueKey = ftok(FIFOPATH, (int)FIFOID);
 	int queueID = msgget(queueKey, 0666 | IPC_CREAT);
 
@@ -630,9 +688,12 @@ int main(int argc, char* argv[])
 #ifdef _DEBUG
 	std::cout << "Waiting for Generator" << std::endl;
 #endif
+	sb.sem_num = 0;
+	sb.sem_op = 0;  /* set to wait for resource consumption*/
+	sb.sem_flg = 0;
 
 	//wait for testbench to consume the "available scheduler"
-	if (semop(semid, &sb, 0) == -1) {
+	if (semop(semid, &sb, 1) == -1) {
 		int e = errno;
 		semctl(semid, 0, IPC_RMID); /* clean up */
 		errno = e;
@@ -651,7 +712,7 @@ int main(int argc, char* argv[])
 	std::thread parserThread(taskParserThread, queueID);
 #endif
 	std::thread servicerThread(coreServicerThread);
-	std::thread timerThread(timerManagerThread, &oUDBuf, &CTUBuf);
+	std::thread timerThread(timerManagerThread, oUDBuf, CTUBuf);
 
 #ifdef _DEBUG
 	std::cout << "Waiting for timer to end" << std::endl;
@@ -674,14 +735,21 @@ int main(int argc, char* argv[])
 	CloseHandle(currUnitMap);
 
 #else
+	std::cout << "Starting Cleanup" << std::endl;
 	msgctl(queueID, IPC_RMID, NULL);
+	std::cout << "C1" << std::endl;
 	semctl(semid, 0, IPC_RMID);
+	std::cout << "C2" << std::endl;
 	int shmdt(void* oUDBuf);
+	std::cout << "C3" << std::endl;
 	int shmdt(void* currUnitBuf);
+	std::cout << "C4" << std::endl;
 
 	//actually delete shared mem since both sides are done now
 	shmctl(oUDid, IPC_RMID, NULL);
+	std::cout << "C5" << std::endl;
 	shmctl(CTUid, IPC_RMID, NULL);
+	std::cout << "C6" << std::endl;
 #endif
 
 	exit(0);

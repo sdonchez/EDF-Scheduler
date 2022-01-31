@@ -17,21 +17,21 @@
 #else
 
 #define FIFONAME "EDFPipe"
-#define FIFOPATH "./EDFPIPE"
+#define FIFOPATH "/var/run/EDFPIPE"
 #define FIFOID 'A'
 
-#define SEMPATH "./EDFSEM"
+#define SEMPATH "/var/run/EDFSEM"
 #define SEMID 'B'
 
-#define OUDPATH "./OUDSHM"
+#define OUDPATH "/var/run/OUDSHM"
 #define OUDID 'C'
 
-#define CTUPATH "./CTUSHM"
+#define CTUPATH "/var/run/CTUSHM"
 #define CTUID 'D'
 
 struct task_msgbuf {
 	long mtype; /* must be positive*/
-	char* json;
+	char json[1024];
 };
 union semun {
 	int val;

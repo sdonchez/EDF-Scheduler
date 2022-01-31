@@ -117,7 +117,7 @@ void coreServicerThread();
 #ifdef TARGET_MS_WINDOWS
 void timerManagerThread(LPCTSTR* oUDBuf, LPCTSTR* currUnitBuf);
 #else
-void timerManagerThread(void* oUDBuf, void* currUnitBuf);
+void timerManagerThread(int* oUDBuf, int* currUnitBuf);
 #endif
 
 /**

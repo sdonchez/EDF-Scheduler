@@ -14,6 +14,8 @@
 #include <string> //for taskName
 #include <functional>
 #include <cstdlib>
+#include <stdio.h>
+#include <iostream>
 
 /**
  * @brief Generates a Task for the Scheduler to parse and schedule.

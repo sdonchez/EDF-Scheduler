@@ -23,12 +23,16 @@ unsigned int GeneratedTask::computeDeadline(int const volatile* const oUD,
 	bool found = false;
 	unsigned int guess = 0;
 	unsigned int range = 0;
+	std::cout << "cD - currUnit=" << *currUnit;
 	unsigned int minDeadline = *currUnit + unitsToExecute; //eliminates edge case of TU change
+	std::cout << " mD=" << minDeadline << std::endl;
 	while (!found)
 	{
 		range = UNITS_TO_SIM - minDeadline;
 		guess = minDeadline + std::rand() % range;
+		std::cout << "uCheckPre" << std::endl;
 		found = utilizationCheck(oUD, currUnit, utilization, guess);
+		std::cout << "uCheckPost" <<std::endl;
 
 		minDeadline = *currUnit + unitsToExecute; //refresh in case of TU change;
 	} //while
@@ -63,7 +67,6 @@ bool GeneratedTask::utilizationCheck(int const volatile* const oUD,
 	{
 		runningSum += oUD[i];
 	} //for
-
 	//multiplying by 100 to convert to a percentage corresponding to the value 
 	//of utilization.
 	unsigned int load = runningSum / (NUM_CORES * (unitNum - *currUnit)) * 100;
