@@ -70,7 +70,6 @@ bool GeneratedTask::utilizationCheck(int const volatile* const oUD,
 		//UnitDiff is difference between i and currUnit. if positive, we're 
 		//scheduling in the future.
 		int UnitDiff = i - *currUnit;
-		int remainingUnits = this->unitsToExecute - UnitDiff;
 
 		//If scheduling in the future, check to see if we exceed maximum
 		//schedulability in any instant (will we cause any task to miss its
@@ -81,7 +80,7 @@ bool GeneratedTask::utilizationCheck(int const volatile* const oUD,
 			//exceeds the maximum amount of schedulable units by TimeUnit i
 			//(defined as the time between now and i multiplied by the number
 			//of parallel cores), then this deadline is invalid.
-			if (UnitDiff < this->unitsToExecute)
+			if (UnitDiff < (long) this->unitsToExecute)
 			{
 				if ((runningSum + UnitDiff - unitsToExecute) >
 					(i - *currUnit)* NUM_CORES)
@@ -89,7 +88,7 @@ bool GeneratedTask::utilizationCheck(int const volatile* const oUD,
 				return false;
 				} //if
 			} //if
-			else if (runningSum > (i - *currUnit) * NUM_CORES)
+			else if (runningSum > ((long)i - (long)*currUnit) * NUM_CORES)
 			{
 				return false;
 			}
