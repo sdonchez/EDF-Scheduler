@@ -23,16 +23,16 @@ unsigned int GeneratedTask::computeDeadline(int const volatile* const oUD,
 	bool found = false;
 	unsigned int guess = 0;
 	unsigned int range = 0;
-	std::cout << "cD - currUnit=" << *currUnit;
 	unsigned int minDeadline = *currUnit + unitsToExecute; //eliminates edge case of TU change
-	std::cout << " mD=" << minDeadline << std::endl;
 	while (!found)
 	{
 		range = UNITS_TO_SIM - minDeadline;
+		if (!range)
+		{
+			return 0;
+		}
 		guess = minDeadline + std::rand() % range;
-		std::cout << "uCheckPre" << std::endl;
 		found = utilizationCheck(oUD, currUnit, utilization, guess);
-		std::cout << "uCheckPost" <<std::endl;
 
 		minDeadline = *currUnit + unitsToExecute; //refresh in case of TU change;
 	} //while
@@ -66,6 +66,34 @@ bool GeneratedTask::utilizationCheck(int const volatile* const oUD,
 	for (unsigned int i = 0; i <= unitNum; i++)
 	{
 		runningSum += oUD[i];
+
+		//UnitDiff is difference between i and currUnit. if positive, we're 
+		//scheduling in the future.
+		int UnitDiff = i - *currUnit;
+		int remainingUnits = this->unitsToExecute - UnitDiff;
+
+		//If scheduling in the future, check to see if we exceed maximum
+		//schedulability in any instant (will we cause any task to miss its
+		//deadline.
+		if (UnitDiff > 0)
+		{
+			//if the running sum minus the units not executed by TimeUnit i
+			//exceeds the maximum amount of schedulable units by TimeUnit i
+			//(defined as the time between now and i multiplied by the number
+			//of parallel cores), then this deadline is invalid.
+			if (UnitDiff < this->unitsToExecute)
+			{
+				if ((runningSum + UnitDiff - unitsToExecute) >
+					(i - *currUnit)* NUM_CORES)
+				{
+				return false;
+				} //if
+			} //if
+			else if (runningSum > (i - *currUnit) * NUM_CORES)
+			{
+				return false;
+			}
+		} //for
 	} //for
 	//multiplying by 100 to convert to a percentage corresponding to the value 
 	//of utilization.

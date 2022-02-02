@@ -31,7 +31,7 @@
 #endif
 #endif
 
-#define TARGET_UTILIZATION 100 //TODO: Replace with arg parsing
+#define TARGET_UTILIZATION 95 //TODO: Replace with arg parsing
 
 int volatile* oUD;
 unsigned int volatile* currUnit;
@@ -356,7 +356,8 @@ oUD = oUDBuf;
 	std::cout << "Starting Task Generation for " << maxUnits <<" units" << 
 		std::endl;
 #endif
-	while(totalUnits < maxUnits)
+	bool done = false;
+	while(!done)
 	{
 #ifdef DEBUG_UNITS
 		std::cout << "Current Total Units: " << totalUnits << " Target: "
@@ -368,6 +369,13 @@ oUD = oUDBuf;
 			std::cout << "Generating Task #" << taskNo << std::endl;
 			GeneratedTask task(oUD, currUnit, TARGET_UTILIZATION);
 			totalUnits += task.unitsToExecute;
+			if (totalUnits > maxUnits)
+			{
+				std::cout << "Not sending Task - max units exceeded" << 
+					std::endl;
+				done = true;
+				break;
+			}
 #ifdef USE_JSON
 			std::string taskStr = task.toJson();
 #else
@@ -388,7 +396,7 @@ oUD = oUDBuf;
 #endif
 		}
 		
-		unitsToSleep = (int)round(500 * numTasksDistribution(generator));
+		unitsToSleep = (int)round(10 * numTasksDistribution(generator));
 #ifdef DEBUG_UNITS
 		std::cout << "Sleeping for " << unitsToSleep << " units." << std::endl;
 #endif
@@ -401,6 +409,8 @@ oUD = oUDBuf;
 #endif
 	}
 
+	std::cout << "Press Return to Exit" << std::endl;
+	getchar();
 
 #ifdef TARGET_MS_WINDOWS
 	DisconnectNamedPipe(hPipe);

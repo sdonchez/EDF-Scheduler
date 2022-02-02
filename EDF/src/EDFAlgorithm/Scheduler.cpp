@@ -259,16 +259,16 @@ void timerManagerThread(LPCTSTR* oUDBuf, LPCTSTR* currUnitBuf)
 		CopyMemory((PVOID)*currUnitBuf, &(currentUnit->unitNum),
 			sizeof(unsigned int));
 
-#ifdef DEBUG_IPC
-		std::cout << "updating shared oUD Map" << std::endl;
-#endif
-		memcpy(oUDBuf, outstandingUnitsDue.data(),
-			UNITS_TO_SIM * sizeof(int));
-#ifdef DEBUG_IPC
-		std::cout << "updating shared currUnit Map" << std::endl;
-#endif
-		memcpy(currUnitBuf, &(currentUnit->unitNum),
-			sizeof(unsigned int));
+//#ifdef DEBUG_IPC
+//		std::cout << "updating shared oUD Map" << std::endl;
+//#endif
+//		memcpy(oUDBuf, outstandingUnitsDue.data(),
+//			UNITS_TO_SIM * sizeof(int));
+//#ifdef DEBUG_IPC
+//		std::cout << "updating shared currUnit Map" << std::endl;
+//#endif
+//		memcpy(currUnitBuf, &(currentUnit->unitNum),
+//			sizeof(unsigned int));
 	}
 	return;
 }
