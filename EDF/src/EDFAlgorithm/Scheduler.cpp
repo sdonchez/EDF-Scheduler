@@ -470,6 +470,7 @@ int main(int argc, char* argv[])
 	std::for_each(std::begin(cores), std::end(cores), [](Core* core) {
 		coreLog << "Core " << core->coreId << '\t';
 		});
+	coreLog << std::endl;
 
 #ifdef TARGET_MS_WINDOWS
 
