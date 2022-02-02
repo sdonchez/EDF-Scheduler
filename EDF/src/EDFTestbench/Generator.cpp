@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
 	HANDLE oUDMap;
 	LPCTSTR oUDBuf;
 	HANDLE currUnitMap;
-	LPCTSTR currUnitBuf;
+	LPCTSTR CTUBuf;
 
 #ifdef _DEBUG
 	std::cout << "Setting up shared oUD Map" << std::endl;
@@ -215,14 +215,14 @@ int main(int argc, char* argv[])
 	std::cout << "Setting up shared currUnit View" << std::endl;
 #endif
 
-	currUnitBuf = (LPTSTR)MapViewOfFile(currUnitMap,   // handle to map object
+	CTUBuf = (LPTSTR)MapViewOfFile(currUnitMap,   // handle to map object
 		PAGE_READONLY, // read/write permission
 		0,
 		0,
 		sizeof(unsigned int)
 	);
 
-	if (currUnitBuf == NULL)
+	if (CTUBuf == NULL)
 	{
 		printf("Could not map view of file (%d).\n",
 			GetLastError());
@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
 	}
 
 	oUD = (int*) oUDBuf;
-	currUnit = (unsigned int*)currUnitBuf;
+	currUnit = (unsigned int*)CTUBuf;
 
 #else //if ARM
 
@@ -405,7 +405,7 @@ oUD = oUDBuf;
 #ifdef TARGET_MS_WINDOWS
 	DisconnectNamedPipe(hPipe);
 	UnmapViewOfFile(oUDBuf);
-	UnmapViewOfFile(currUnitBuf);
+	UnmapViewOfFile(CTUBuf);
 	CloseHandle(oUDMap);
 	CloseHandle(currUnitMap);
 
@@ -413,7 +413,7 @@ oUD = oUDBuf;
 //	msgctl(queueID, IPC_RMID, NULL);
 //	semctl(semid, 0, IPC_RMID);
 //	int shmdt(void* oUDBuf);
-//	int shmdt(void* currUnitBuf);
+//	int shmdt(void* CTUBuf);
 	//Don't actually delete shared mem since the scheduler generally finishes
 	//after the testbench
 #endif

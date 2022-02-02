@@ -273,7 +273,7 @@ void timerManagerThread(LPCTSTR* oUDBuf, LPCTSTR* currUnitBuf)
 	return;
 }
 #else
-void timerManagerThread(int* oUDBuf, int* currUnitBuf)
+void timerManagerThread(int* oUDBuf, int* CTUBuf)
 {
 #ifdef DEBUG_TIMER
 	std::cout << "Timer Manager thread spawned." << std::endl;
@@ -302,7 +302,7 @@ void timerManagerThread(int* oUDBuf, int* currUnitBuf)
 #ifdef DEBUG_IPC
 		std::cout << "updating shared currUnit Map - unit " << currentUnit->unitNum << std::endl;
 #endif
-		memcpy(currUnitBuf, &(currentUnit->unitNum),
+		memcpy(CTUBuf, &(currentUnit->unitNum),
 			sizeof(unsigned int));
 	}
 	return;
@@ -476,7 +476,7 @@ int main(int argc, char* argv[])
 	HANDLE oUDMap;
 	LPCTSTR oUDBuf;
 	HANDLE currUnitMap;
-	LPCTSTR currUnitBuf;
+	LPCTSTR CTUBuf;
 
 #ifdef _DEBUG
 	std::cout << "Setting up shared oUD Map" << std::endl;
@@ -531,14 +531,14 @@ int main(int argc, char* argv[])
 	std::cout << "Setting up shared currUnit View" << std::endl;
 #endif
 
-	currUnitBuf = (LPTSTR)MapViewOfFile(currUnitMap,   // handle to map object
+	CTUBuf = (LPTSTR)MapViewOfFile(currUnitMap,   // handle to map object
 		FILE_MAP_ALL_ACCESS, // read/write permission
 		0,
 		0,
 		sizeof(unsigned int)
 	);
 
-	if (currUnitBuf == NULL)
+	if (CTUBuf == NULL)
 	{
 		printf("Could not map view of file (%d).\n",
 			GetLastError());
@@ -708,11 +708,14 @@ int main(int argc, char* argv[])
 
 #ifdef TARGET_MS_WINDOWS
 	std::thread parserThread(taskParserThread, &hPipe, dwRead);
+	std::thread timerThread(timerManagerThread, &oUDBuf, &CTUBuf);
+
 #else
 	std::thread parserThread(taskParserThread, queueID);
+	std::thread timerThread(timerManagerThread, oUDBuf, CTUBuf);
+
 #endif
 	std::thread servicerThread(coreServicerThread);
-	std::thread timerThread(timerManagerThread, oUDBuf, CTUBuf);
 
 #ifdef _DEBUG
 	std::cout << "Waiting for timer to end" << std::endl;
@@ -730,7 +733,7 @@ int main(int argc, char* argv[])
 #ifdef TARGET_MS_WINDOWS
 	CloseHandle(hPipe);
 	UnmapViewOfFile(oUDBuf);
-	UnmapViewOfFile(currUnitBuf);
+	UnmapViewOfFile(CTUBuf);
 	CloseHandle(oUDMap);
 	CloseHandle(currUnitMap);
 
@@ -742,7 +745,7 @@ int main(int argc, char* argv[])
 	std::cout << "C2" << std::endl;
 	int shmdt(void* oUDBuf);
 	std::cout << "C3" << std::endl;
-	int shmdt(void* currUnitBuf);
+	int shmdt(void* CTUBuf);
 	std::cout << "C4" << std::endl;
 
 	//actually delete shared mem since both sides are done now
