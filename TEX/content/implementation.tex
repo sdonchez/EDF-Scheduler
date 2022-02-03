@@ -27,7 +27,16 @@ This logic is captured in Equation \ref{equ:Utilization}, below. In this equatio
     \frac{(\sum_{i=t_c}^{t_n}D_i)+UtE}{P*(n-c)} < Desired\:Load\:Percentage
 \end{equation}
 
-By verifying the validity of this equation for each generated task's proposed deadline, it is possible to ensure that schedulability constraints are not violated. Furthermore, the maintenance of this information on the part of the scheduler is non-resource intensive, requiring a single addition operation as each task is parsed, a single decrement operation as each core is serviced, and a single increment operation (for the current unit counter) on the part of timer manager per Time Unit.
+By verifying the validity of this equation for each generated task's proposed deadline, it is possible to ensure that target average utilization is not exceeded. Furthermore, the maintenance of this information on the part of the scheduler is non-resource intensive, requiring a single addition operation as each task is parsed, a single decrement operation as each core is serviced, and a single increment operation (for the current unit counter) on the part of timer manager per Time Unit.
+
+Unfortunately, this does not fully resolve the issue outlined above. In addition to ensuring that the average utilization is not compromised, it is also important to verify that the instantaneous utilization never exceeds the maximum. (For example, inserting a task that has a Units to Execute value of 100 with a deadline of 500 may not compromise the average utilization, but may cause a task due at unit 510 to lack sufficient time to run). To rectify this, an additioanl check is necessary. 
+
+To perform this additional check, the generator iterates across the entire simulation window, computing a running sum of the outstanding work to be done that is due at that unit, and comparing that value plus a prorated portion of the new task's units against the theoretical limit. This check is captured by Equation \ref{equ:InstUtil}:
+\begin{equation}\label{equ:InstUtil}
+    \sum_{i=t_0}^{t_n}D_i + \max(\min(UtE, i - t_c), 0) < P*(n-i-c)\:\forall i>c
+\end{equation}
+
+Provided the conditions of both Equations \ref{equ:Utilization} and \ref{equ:InstUtil}, above, are satisfied, the testbench application can then assume that the proposed deadline is valid for the generated task.
 
 \subsection{Operating System and Environment}\label{subsec:LinuxImpl}
 By virtue of introducing multiple threads to the scheduler (and also by virtue of running two applications on a single core processor), it is necessary to implement an operating system (OS) on the processor system upon which the scheduler simulation is running. Futhermore, the larger design will add additional functionality to the processor system, further necessitating an operating system for thread management and for scheduling of the processor itself. To this end, several operating system choices were considered for implementation on the hardware target in support of this simulation. As the target in question includes a Xilinx SoC, it was decided that the ideal choice for such a system would be the Xilinx PetaLinux OS, as it includes all of the necessary drivers for interfacing with the various devices on the development platform. Additionally, the PetaLinux platform is based on the OpenEmbedded Project's toolchain, which affords tremendous flexibility and customization potential as needed.
