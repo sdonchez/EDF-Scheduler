@@ -63,7 +63,7 @@ bool GeneratedTask::utilizationCheck(int const volatile* const oUD,
 	 * 
 	*/
 	int runningSum = this->unitsToExecute;
-	for (unsigned int i = 0; i <= unitNum; i++)
+	for (unsigned int i = 0; i <= UNITS_TO_SIM; i++)
 	{
 		runningSum += oUD[i];
 
@@ -82,20 +82,20 @@ bool GeneratedTask::utilizationCheck(int const volatile* const oUD,
 			//of parallel cores), then this deadline is invalid.
 			if (UnitDiff < (long) this->unitsToExecute)
 			{
-				if ((runningSum + UnitDiff - unitsToExecute) >
-					(i - *currUnit)* NUM_CORES)
+				if (((long) runningSum + UnitDiff - (long) unitsToExecute) >
+					(UnitDiff)* NUM_CORES)
 				{
 				return false;
 				} //if
 			} //if
-			else if (runningSum > ((long)i - (long)*currUnit) * NUM_CORES)
+			else if (runningSum > (UnitDiff * NUM_CORES))
 			{
 				return false;
 			}
 		} //for
 	} //for
-	//multiplying by 100 to convert to a percentage corresponding to the value 
-	//of utilization.
+//	//multiplying by 100 to convert to a percentage corresponding to the value
+//	//of utilization.
 	unsigned int load = runningSum / (NUM_CORES * (unitNum - *currUnit)) * 100;
 	return ( load < utilization);
 } //utilizationCheck

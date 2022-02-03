@@ -6,8 +6,8 @@
 #include "Task.h"
 #include "Core.h"
 #include "TimeUnit.h"
-#ifdef USEJSON
-#include "nlohmann\json.hpp" //for input parsing
+#ifdef USE_JSON
+#include "nlohmann/json.hpp" //for input parsing
 #else
 #include "pugixml/pugixml.hpp" //for input parsing
 #endif
@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <cstring>
 
 #ifdef TARGET_MS_WINDOWS
 #include <Windows.h>

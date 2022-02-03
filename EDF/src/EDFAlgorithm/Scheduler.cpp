@@ -87,7 +87,8 @@ void processNewTask(nlohmann::json jsonTask)
 	std::cout << "Created Task object. taskName = " << newTask->taskName <<
 		". taskId = " << newTask->taskId << ". unitsToExecute = " <<
 		newTask->unitsToExecute << ". Period = " << newTask->period <<
-		". unitNum = " << newTask->deadline->unitNum << "." << std::endl;
+		". unitNum = " << newTask->deadline->unitNum << "." << "CTU:" <<
+		currentUnit->unitNum << std::endl;
 #endif
 	tasks.insert(newTask);
 #ifdef DEBUG_TASKS
@@ -185,7 +186,7 @@ void serviceCore(Core* core)
 		{
 			core->currentTask = tasks.fetchAndPop();
 		}
-		else if (core->currentTask->deadline > tasks.earliestDeadline() && 
+		else if ((core->currentTask->deadline->unitNum > tasks.earliestDeadline()->unitNum) &&
 			isLatestCore(core))
 		{
 			core->currentTask = tasks.swapTaskToQueue(core->currentTask);
@@ -202,6 +203,12 @@ void serviceCore(Core* core)
 			core->currentTask->unitsExecuted << '/' <<
 			core->currentTask->unitsToExecute << ',' <<
 			core->currentTask->deadline->unitNum << ')' << '\t';
+		if(core->currentTask->deadline->unitNum < currentUnit->unitNum)
+		{
+			std::cout << "Task " << core->currentTask->taskId << " is late! " <<
+					"Deadline was " << core->currentTask->deadline->unitNum <<
+					", current unit is " << currentUnit->unitNum << std::endl;
+		}
 		core->executeForTimeUnit();
 	}
 }
@@ -290,19 +297,19 @@ void timerManagerThread(int* oUDBuf, int* CTUBuf)
 		std::this_thread::sleep_for(duration);
 		doStartUnit = true;
 		doServiceCores = true;
-
+		while(doServiceCores); //give the other thread a chance to work?
 		currentUnit = findTimeUnit(currentUnit->unitNum + 1);
 		doStartUnit = false;
 
 #ifdef DEBUG_IPC
 		std::cout << "updating shared oUD Map" << std::endl;
 #endif
-		memcpy(oUDBuf, outstandingUnitsDue.data(),
+		std::memcpy(oUDBuf, outstandingUnitsDue.data(),
 			UNITS_TO_SIM);
 #ifdef DEBUG_IPC
 		std::cout << "updating shared currUnit Map - unit " << currentUnit->unitNum << std::endl;
 #endif
-		memcpy(CTUBuf, &(currentUnit->unitNum),
+		std::memcpy(CTUBuf, &(currentUnit->unitNum),
 			sizeof(unsigned int));
 	}
 	return;
@@ -349,7 +356,7 @@ void taskParserThread(
 #endif
 #ifdef DEBUG_TASKS
 		std::cout << "Input Received:";
-		printf("%s;%s\n",taskStr.c_str(),msgbuf.json);
+		printf("%s;%s CTU:%i\n",taskStr.c_str(),msgbuf.json, currentUnit->unitNum);
 #endif
 		size_t pos = 0;
 		std::string token;

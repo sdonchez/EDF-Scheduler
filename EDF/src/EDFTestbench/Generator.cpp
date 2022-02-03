@@ -4,6 +4,7 @@
 #include <random>
 #include <string>
 #include <iostream>
+#include <stdlib.h>
 #ifdef TARGET_MS_WINDOWS
 #include <Windows.h>
 #include <WinUser.h>
@@ -31,7 +32,7 @@
 #endif
 #endif
 
-#define TARGET_UTILIZATION 95 //TODO: Replace with arg parsing
+#define DEFAULT_UTILIZATION 95 //TODO: Replace with arg parsing
 
 int volatile* oUD;
 unsigned int volatile* currUnit;
@@ -107,7 +108,25 @@ int initsem(key_t key, int nsems)  /* key from ftok() */
 
 int main(int argc, char* argv[])
 {
-	int maxUnits = (int)((UNITS_TO_SIM * NUM_CORES) * (TARGET_UTILIZATION / 100.0));
+	int unitsOpt, utilization;
+	if ((argc == 2) && (unitsOpt = ((int) strtol(argv[1], nullptr, 10))))
+	{
+		if ((unitsOpt < 1) || (unitsOpt > 100))
+		{
+			std::cout<< "invalid utilization percentage"
+					"passed. Using default value" << std::endl;
+			utilization = DEFAULT_UTILIZATION;
+		}
+		else
+		{
+			utilization = unitsOpt;
+		}
+	}
+	else
+	{
+		utilization = DEFAULT_UTILIZATION;
+	}
+	int maxUnits = (int)((UNITS_TO_SIM * NUM_CORES) * (utilization / 100.0));
 	int totalUnits = 0;
 	std::default_random_engine generator;
 	std::exponential_distribution <double> numTasksDistribution(3.5);
@@ -367,7 +386,7 @@ oUD = oUDBuf;
 		for (unsigned int taskNo = 0; taskNo < numTasks; taskNo++)
 		{
 			std::cout << "Generating Task #" << taskNo << std::endl;
-			GeneratedTask task(oUD, currUnit, TARGET_UTILIZATION);
+			GeneratedTask task(oUD, currUnit, utilization);
 			totalUnits += task.unitsToExecute;
 			if (totalUnits > maxUnits)
 			{
@@ -390,7 +409,7 @@ oUD = oUDBuf;
 			struct task_msgbuf msg;
 			msg.mtype = 1;
 			strncpy (msg.json, taskStr.c_str(), 1023);
-			std::cout << msg.json << std::endl;
+			std::cout << msg.json << "CTU:" << *currUnit << std::endl;
 			msgsnd(queueID, &msg, sizeof(msg.json),0);
 
 #endif
@@ -408,9 +427,6 @@ oUD = oUDBuf;
 		usleep(ceil(((double)(unitTimeNS * unitsToSleep)) / 1000));
 #endif
 	}
-
-	std::cout << "Press Return to Exit" << std::endl;
-	getchar();
 
 #ifdef TARGET_MS_WINDOWS
 	DisconnectNamedPipe(hPipe);

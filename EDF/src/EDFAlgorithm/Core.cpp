@@ -28,7 +28,7 @@ void Core::assignTask(Task* task)
 void Core::executeForTimeUnit()
 {
 	(*currentTask).executeForTimeUnit();
-	if (!this->currentTask->unitsRemaining())
+	if (this->currentTask->unitsRemaining() <= 0)
 	{
 		this->currentTask = nullptr;
 	}

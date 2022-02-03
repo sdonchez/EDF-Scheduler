@@ -5,7 +5,7 @@
 #endif
 
 #define NUM_CORES 4
-#define CLOCKS_PER_UNIT 1000
+#define CLOCKS_PER_UNIT 1000000
 //TODO: Determine CLOCKS_PER_UNIT value
 
 #define UNITS_TO_SIM 1000

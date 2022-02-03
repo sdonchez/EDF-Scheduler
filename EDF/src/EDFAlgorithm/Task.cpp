@@ -52,7 +52,7 @@ Task::~Task()
 bool Task::isPeriodic()
 {
 #ifdef DEBUG_TASKS
-	cout << "isPeriodic called for Task " << this->taskId << std::endl;
+//	std::cout << "isPeriodic called for Task " << this->taskId << std::endl;
 #endif //DEBUG_TASKS
 	return (this->period > 0);
 } //isPeriodic
@@ -60,15 +60,17 @@ bool Task::isPeriodic()
 unsigned int Task::unitsToDeadline(TimeUnit* currentUnit)
 {
 #ifdef DEBUG_TASKS
-	cout << "unitsToDeadline called for Task " << this->taskId << std::endl;
+//	std::cout << "unitsToDeadline called for Task " << this->taskId << std::endl;
 #endif //DEBUG_TASKS
 	return TimeUnit::unitDiff(*this->deadline, *currentUnit);
 } //unitsToDeadline
 
-unsigned int Task::unitsRemaining()
+int Task::unitsRemaining()
 {
 #ifdef DEBUG_TASKS
-	cout << "unitsRemaining Called for Task " << this->taskId << std::endl;
+	std::cout << "unitsRemaining Called for Task " << this->taskId <<
+			". result = " << this->unitsToExecute - this->unitsExecuted
+	<< std::endl;
 #endif //DEBUG_TASKS
 	return this->unitsToExecute - this->unitsExecuted;
 } //unitsRemaining
@@ -81,8 +83,9 @@ unsigned int Task::unitsRemaining()
 void Task::executeForTimeUnit()
 {
 #ifdef DEBUG_TASKS
-	cout << "executeForTimeUnit Called for Task " << this->taskId << std::endl;
+//	std::cout << "executeForTimeUnit Called for Task " << this->taskId << std::endl;
 #endif //DEBUG_TASKS
 	this->unitsExecuted++;
 	this->oUD[this->deadline->unitNum] -= 1;
+
 } //executeForTimeUnit

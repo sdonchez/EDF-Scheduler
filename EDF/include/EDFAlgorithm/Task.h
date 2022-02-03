@@ -12,6 +12,7 @@
 #endif
 #include "TimeUnit.h" //Since tasks have time constraints
 #include <string> //for taskName
+#include <iostream>
 
 /**
  * @brief Implements a decryption task that the EDF algorithm is scheduling.
@@ -49,7 +50,7 @@ public:
 	/**
 	 * @brief How many units of the task have executed thus far.
 	*/
-	int unitsExecuted = 0;
+	unsigned int unitsExecuted = 0;
 
 	/**
 	 * @brief pointer to the Scheduler's outstandingUnitsToExecute array. This
@@ -123,7 +124,7 @@ public:
 	 * @brief Calculates the number of TimeUnits remainig to execute.
 	 * @return Number of TimeUnits remaining to execute for the current Task.
 	*/
-	unsigned int unitsRemaining();
+	int unitsRemaining();
 
 	/**
 	 * @brief Executes the function for a single TimeUnit. Implementation is
