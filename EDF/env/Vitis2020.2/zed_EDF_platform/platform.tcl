@@ -173,3 +173,20 @@ platform generate -domains
 platform generate -domains 
 platform generate -domains 
 platform generate -domains 
+platform clean
+platform clean
+platform active {zed_EDF_platform}
+platform config -fsbl-elf {/workspaces/Research-I/EDF/avnet-digilent-zedboard-2020.2/pre-built/linux/images/zynq_fsbl.elf}
+platform write
+domain config -boot {/workspaces/Research-I/EDF/avnet-digilent-zedboard-2020.2/pre-built/linux/images}
+domain config -boot {}
+domain config -bif {}
+domain config -boot {}
+domain config -boot {/workspaces/Research-I/EDF/avnet-digilent-zedboard-2020.2/pre-built/linux/images}
+platform write
+domain config -image {/workspaces/Research-I/EDF/avnet-digilent-zedboard-2020.2/pre-built/linux/images}
+platform write
+domain config -rootfs {/workspaces/Research-I/EDF/avnet-digilent-zedboard-2020.2/pre-built/linux/images/rootfs.cpio.gz}
+platform write
+domain config -bif {}
+platform write
