@@ -403,7 +403,6 @@ int initsem(key_t key, int nsems)  /* key from ftok() */
 		sb.sem_op = 1; sb.sem_flg = 0;
 		arg.val = 1;
 
-		std::cout << "start semop init" << std::endl;
 		for (sb.sem_num = 0; sb.sem_num < nsems; sb.sem_num++) {
 			/* do a semop() to indicate 1 scheduler is available. */
 			/* this sets the sem_otime field, as needed below. */
@@ -413,7 +412,6 @@ int initsem(key_t key, int nsems)  /* key from ftok() */
 				errno = e;
 				return -1; /* error, check errno */
 			}
-			std::cout << "Done semop init" << std::endl;
 		}
 
 	}
@@ -444,7 +442,6 @@ int initsem(key_t key, int nsems)  /* key from ftok() */
 		std::cout << "reterr 1" << std::endl;
 		return semid; /* error, check errno */
 	}
-	std::cout << "good ret" << std::endl;
 	return semid;
 }
 #endif
@@ -746,21 +743,16 @@ int main(int argc, char* argv[])
 	CloseHandle(currUnitMap);
 
 #else
+#ifdef DEBUG_IPC
 	std::cout << "Starting Cleanup" << std::endl;
+#endif
 	msgctl(queueID, IPC_RMID, NULL);
-	std::cout << "C1" << std::endl;
 	semctl(semid, 0, IPC_RMID);
-	std::cout << "C2" << std::endl;
 	int shmdt(void* oUDBuf);
-	std::cout << "C3" << std::endl;
 	int shmdt(void* CTUBuf);
-	std::cout << "C4" << std::endl;
-
 	//actually delete shared mem since both sides are done now
 	shmctl(oUDid, IPC_RMID, NULL);
-	std::cout << "C5" << std::endl;
 	shmctl(CTUid, IPC_RMID, NULL);
-	std::cout << "C6" << std::endl;
 #endif
 
 	exit(0);

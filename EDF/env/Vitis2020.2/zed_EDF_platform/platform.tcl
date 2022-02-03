@@ -190,3 +190,6 @@ domain config -rootfs {/workspaces/Research-I/EDF/avnet-digilent-zedboard-2020.2
 platform write
 domain config -bif {}
 platform write
+platform generate
+platform generate
+platform generate

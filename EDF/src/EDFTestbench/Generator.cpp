@@ -5,6 +5,10 @@
 #include <string>
 #include <iostream>
 #include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
+#include <ctime>
+
 #ifdef TARGET_MS_WINDOWS
 #include <Windows.h>
 #include <WinUser.h>
@@ -376,6 +380,7 @@ oUD = oUDBuf;
 		std::endl;
 #endif
 	bool done = false;
+	std::srand(std::time(0));
 	while(!done)
 	{
 #ifdef DEBUG_UNITS

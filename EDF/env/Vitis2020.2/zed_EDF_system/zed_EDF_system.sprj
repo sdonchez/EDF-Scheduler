@@ -27,5 +27,13 @@
       <applications name="SemaphoreConsumerTest" domainName="linux_domain" domainPrettyName="linux on ps7_cortexa9" appBuildConfig="Release"/>
       <options xsi:type="sdsproject:Option" gensdcard="true" dmclkid="0"/>
     </configBuildOptions>
+    <lastBuildOptions xsi:type="systemproject:SystemOptions">
+      <applications name="zed_EDF" domainName="linux_domain" domainPrettyName="linux on ps7_cortexa9" appBuildConfig="Release"/>
+      <applications name="hello_world" domainName="linux_domain" domainPrettyName="linux on ps7_cortexa9" appBuildConfig="Release"/>
+      <applications name="zed_EDF_testbench" domainName="linux_domain" domainPrettyName="linux on ps7_cortexa9" appBuildConfig="Release"/>
+      <applications name="SemaphoreProviderTest" domainName="linux_domain" domainPrettyName="linux on ps7_cortexa9" appBuildConfig="Release"/>
+      <applications name="SemaphoreConsumerTest" domainName="linux_domain" domainPrettyName="linux on ps7_cortexa9" appBuildConfig="Release"/>
+      <options xsi:type="sdsproject:Option" gensdcard="true" dmclkid="0"/>
+    </lastBuildOptions>
   </configuration>
 </systemproject:SystemProject>
