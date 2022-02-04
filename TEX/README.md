@@ -1,0 +1,20 @@
+# Research I Final Report
+
+This folder contains the various assets required to generate the final report for the Research I course. The report has been constructed in the format of an IEEE Jounal article. It is the intention of the authors to submit it for publication in that format. The report is authored in LaTeX, using the IEEETrans LaTeX class, as published on CTAN.
+
+## Abstract
+
+Earliest Deadline First (EDF) scheduling is a mechanism by which discrete tasks in a system are scheduled based on their respective deadlines. This algorithm is not constrained solely to its traditional application in the realm of scheduling tasks on processors, but 
+is suitable for use in any scenario wherein an ideal arrangement of tasks is needed that respects their time constraints. In this work, a modified EDF algorithm is applied to schedule aperiodic tasks among a number of Intellectual Property (IP) cores contained on a Field Programmable Gate Array (FPGA). Special consideration is given in the modification of the algorithm to the nature of tasks suited for execution on an FPGA, as well as the common properties of such IP cores as they impact the schedulability of these tasks.
+
+This work first outlines the algorithm described above, then implements it in C++ and demonstrates its execution on both a desktop computer and on a heterogenous System on a Chip (SoC) device. It also discusses the results observed both with regards to functionality 
+and performance, as well as considers avenues for expansion and refinement. This work also situates this algorithm within the larger system described by this research effort, both for context and as an example of its potential benefit.
+
+## Keywords
+
+-    Earliest Deadline First Scheduling,
+-    Scheduling Algorithm 
+-    System-on-a-Chip 
+-    Field Programmable Gate Array 
+-    Embedded System 
+-    Heterogenous System
